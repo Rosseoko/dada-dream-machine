@@ -243,19 +243,38 @@ function LanguageSwitcher({
   onChange: (l: LangCode) => void;
 }) {
   return (
-    <div className="lang-switch" role="group" aria-label="Language">
-      {LANGUAGES.map((l) => (
-        <button
-          key={l.code}
-          className={`lang-switch__btn${value === l.code ? " is-active" : ""}`}
-          onClick={() => onChange(l.code)}
-          title={l.label}
-          aria-pressed={value === l.code}
+    <>
+      {/* Desktop: Button layout */}
+      <div className="lang-switch lang-switch--desktop" role="group" aria-label="Language">
+        {LANGUAGES.map((l) => (
+          <button
+            key={l.code}
+            className={`lang-switch__btn${value === l.code ? " is-active" : ""}`}
+            onClick={() => onChange(l.code)}
+            title={l.label}
+            aria-pressed={value === l.code}
+          >
+            {l.native}
+          </button>
+        ))}
+      </div>
+      
+      {/* Mobile: Dropdown selector */}
+      <div className="lang-switch lang-switch--mobile">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value as LangCode)}
+          className="lang-switch__select"
+          aria-label="Language"
         >
-          {l.native}
-        </button>
-      ))}
-    </div>
+          {LANGUAGES.map((l) => (
+            <option key={l.code} value={l.code}>
+              {l.native}
+            </option>
+          ))}
+        </select>
+      </div>
+    </>
   );
 }
 

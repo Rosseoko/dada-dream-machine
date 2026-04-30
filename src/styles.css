@@ -449,3 +449,96 @@
 
 [dir="rtl"] .lang-switch { right: auto; left: 0.75rem; }
 
+/* Desktop: Ensure language switcher doesn't overlap with download button */
+@media (min-width: 768px) {
+  .result__bar-actions {
+    margin-right: 8rem; /* Make space for language switcher */
+  }
+  
+  [dir="rtl"] .result__bar-actions {
+    margin-right: 0;
+    margin-left: 8rem;
+  }
+}
+
+/* Mobile: Dropdown selector */
+.lang-switch--mobile {
+  display: none;
+}
+
+/* Desktop: Show button layout, hide dropdown */
+@media (min-width: 768px) {
+  .lang-switch--desktop {
+    display: flex;
+  }
+  .lang-switch--mobile {
+    display: none;
+  }
+}
+
+/* Mobile: Show dropdown, hide button layout */
+@media (max-width: 767px) {
+  .lang-switch--desktop {
+    display: none;
+  }
+  .lang-switch--mobile {
+    display: block;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+  
+  .lang-switch__select {
+    font-family: "Anton", "Bebas Neue", sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    background: var(--dada-ink);
+    color: var(--dada-paper);
+    border: 2px solid var(--dada-ink);
+    padding: 0.4rem 0.6rem;
+    border-radius: 0;
+    cursor: pointer;
+    min-width: 3rem;
+    box-shadow: 3px 3px 0 0 var(--dada-red);
+  }
+  
+  .lang-switch__select:hover {
+    background: var(--dada-paper-deep);
+    color: var(--dada-ink);
+  }
+  
+  .lang-switch__select:focus {
+    outline: 2px solid var(--dada-red);
+    outline-offset: 1px;
+  }
+  
+  .lang-switch__select option {
+    background: var(--dada-ink);
+    color: var(--dada-paper);
+    padding: 0.3rem;
+  }
+  
+  [dir="rtl"] .lang-switch--mobile {
+    right: auto;
+    left: 0.5rem;
+  }
+  
+  /* On very small screens, make selector more compact */
+  @media (max-width: 480px) {
+    .lang-switch--mobile {
+      top: 0.25rem;
+      right: 0.25rem;
+    }
+    
+    .lang-switch__select {
+      font-size: 0.7rem;
+      padding: 0.3rem 0.5rem;
+      min-width: 2.5rem;
+    }
+    
+    [dir="rtl"] .lang-switch--mobile {
+      right: auto;
+      left: 0.25rem;
+    }
+  }
+}
+
