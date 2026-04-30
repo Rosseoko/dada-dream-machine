@@ -400,6 +400,14 @@
   transform: scale(1.05);
 }
 
+.intro__animals-icons {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.5rem;
+  font-size: 1.2rem;
+  letter-spacing: 0.1rem;
+}
+
 /* ---- Result / Poster ---- */
 .result {
   position: relative;
@@ -467,35 +475,17 @@
 /* ---- Language switcher ---- */
 .lang-switch {
   position: fixed;
-  top: 0.75rem;
   right: 0.75rem;
   z-index: 50;
-  display: flex;
-  gap: 2px;
-  background: var(--dada-ink);
-  padding: 3px;
-  border: 2px solid var(--dada-ink);
-  box-shadow: 3px 3px 0 0 var(--dada-red);
-}
-.lang-switch__btn {
-  font-family: "Anton", "Bebas Neue", sans-serif;
-  font-size: 0.85rem;
-  letter-spacing: 0.06em;
-  padding: 0.3rem 0.55rem;
-  background: var(--dada-paper);
-  color: var(--dada-ink);
-  border: none;
-  cursor: pointer;
-  min-width: 1.8rem;
-  line-height: 1;
-}
-.lang-switch__btn:hover { background: var(--dada-paper-deep); }
-.lang-switch__btn.is-active {
-  background: var(--dada-red);
-  color: var(--dada-paper);
 }
 
-[dir="rtl"] .lang-switch { right: auto; left: 0.75rem; }
+/* Mobile styles */
+@media (max-width: 767px) {
+  .lang-switch {
+    top: 0.75rem;
+    flex-direction: row;
+  }
+}
 
 /* Desktop: Ensure language switcher doesn't overlap with download button */
 @media (min-width: 768px) {
@@ -518,9 +508,45 @@
 @media (min-width: 768px) {
   .lang-switch--desktop {
     display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: var(--dada-ink);
+    padding: 3px;
+    border: 2px solid var(--dada-ink);
+    box-shadow: 3px 3px 0 0 var(--dada-red);
+    top: 50%;
+    transform: translateY(-50%);
   }
+  
   .lang-switch--mobile {
     display: none;
+  }
+  
+  .lang-switch__btn {
+    font-family: "Anton", "Bebas Neue", sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    background: var(--dada-paper);
+    color: var(--dada-ink);
+    border: none;
+    padding: 0.4rem 0.6rem;
+    cursor: pointer;
+    min-width: 2.5rem;
+    transition: all 0.15s ease;
+  }
+  
+  .lang-switch__btn:hover {
+    background: var(--dada-paper-deep);
+  }
+  
+  .lang-switch__btn.is-active {
+    background: var(--dada-red);
+    color: var(--dada-paper);
+  }
+  
+  [dir="rtl"] .lang-switch--desktop {
+    right: auto;
+    left: 0.75rem;
   }
 }
 
@@ -589,4 +615,3 @@
     }
   }
 }
-

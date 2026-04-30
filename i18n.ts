@@ -29,12 +29,11 @@ export type Dict = {
   edition: string;
   seed: string;
   dragHint: string;
-  animalsMode: string;
 };
 
 export const DICT: Record<LangCode, Dict> = {
   en: {
-    tagline: "DADA ART GENERATOR",
+    tagline: "MANIFESTO GENERATOR",
     prompt: "Give me your words.",
     lede: "A sentence. A whisper. A complaint. Six words or more. Chance will cut them up, paste them down, and sign the wreckage in your name.",
     placeholder: "Type anything. The thought is made in the mouth…",
@@ -50,10 +49,9 @@ export const DICT: Record<LangCode, Dict> = {
     edition: "Manifesto N°",
     seed: "SEED",
     dragHint: "Drag the scraps. Rearrange the accident. Then print.",
-    animalsMode: "🐾 Animals Mode",
   },
   es: {
-    tagline: "DADA ART GENERATOR",
+    tagline: "GENERADOR DE MANIFIESTOS",
     prompt: "Dame tus palabras.",
     lede: "Una frase. Un susurro. Una queja. Seis palabras o más. El azar las cortará, las pegará y firmará el desastre en tu nombre.",
     placeholder: "Escribe lo que sea. El pensamiento se hace en la boca…",
@@ -69,10 +67,9 @@ export const DICT: Record<LangCode, Dict> = {
     edition: "Manifiesto N°",
     seed: "SEMILLA",
     dragHint: "Arrastra los recortes. Recompón el accidente. Luego imprime.",
-    animalsMode: "🐾 Modo Animales",
   },
   it: {
-    tagline: "GENERATORE DI ARTE DADA",
+    tagline: "GENERATORE DI MANIFESTI",
     prompt: "Dammi le tue parole.",
     lede: "Una frase. Un mormorio. Una lamentela. Sei parole o più. Il caso le taglierà, le incollerà, firmerà il disastro al tuo posto.",
     placeholder: "Scrivi qualunque cosa. Il pensiero si fa in bocca…",
@@ -88,10 +85,9 @@ export const DICT: Record<LangCode, Dict> = {
     edition: "Manifesto N°",
     seed: "SEME",
     dragHint: "Trascina i ritagli. Ricomponi l'incidente. Poi stampa.",
-    animalsMode: "🐾 Modalità Animali",
   },
   pt: {
-    tagline: "GERADOR DE ARTE DADA",
+    tagline: "GERADOR DE MANIFESTOS",
     prompt: "Dê-me as suas palavras.",
     lede: "Uma frase. Um sussurro. Uma queixa. Seis palavras ou mais. O acaso as cortará, colará e assinará o destroço em teu nome.",
     placeholder: "Escreve qualquer coisa. O pensamento faz-se na boca…",
@@ -107,10 +103,9 @@ export const DICT: Record<LangCode, Dict> = {
     edition: "Manifesto N°",
     seed: "SEMENTE",
     dragHint: "Arrasta os recortes. Reorganiza o acidente. Depois imprime.",
-    animalsMode: "🐾 Modo Animais",
   },
   fr: {
-    tagline: "GÉNÉRATEUR D'ART DADA",
+    tagline: "GÉNÉRATEUR DE MANIFESTES",
     prompt: "Donne-moi tes mots.",
     lede: "Une phrase. Un murmure. Une plainte. Six mots minimum. Le hasard les coupera, les collera, signera la ruine en ton nom.",
     placeholder: "Écris n'importe quoi. La pensée se fait dans la bouche…",
@@ -126,10 +121,9 @@ export const DICT: Record<LangCode, Dict> = {
     edition: "Manifeste N°",
     seed: "GRAINE",
     dragHint: "Glisse les coupures. Recompose l'accident. Puis imprime.",
-    animalsMode: "🐾 Mode Animaux",
   },
   ar: {
-    tagline: "مولد فن الدادا",
+    tagline: "مولِّد البيانات",
     prompt: "أعطني كلماتك.",
     lede: "جملة. همسة. شكوى. ست كلمات أو أكثر. ستقصّها الصدفة، تلصقها، وتوقّع الخراب باسمك.",
     placeholder: "اكتب أي شيء. الفكرة تُصنع في الفم…",
@@ -145,10 +139,9 @@ export const DICT: Record<LangCode, Dict> = {
     edition: "بيان رقم",
     seed: "بذرة",
     dragHint: "اسحب القصاصات. أعِد ترتيب الحادث. ثم اطبع.",
-    animalsMode: "🐾 وضع الحيوانات",
   },
   zh: {
-    tagline: "达达艺术生成器",
+    tagline: "宣言生成器",
     prompt: "把你的字给我。",
     lede: "一句话。一声低语。一句抱怨。至少六个字。偶然会剪开、粘贴，并以你的名义在残骸上签字。",
     placeholder: "随便写。想法在口中诞生……",
@@ -164,6 +157,5 @@ export const DICT: Record<LangCode, Dict> = {
     edition: "宣言 第",
     seed: "种子",
     dragHint: "拖动碎片，重组这场意外，然后打印。",
-    animalsMode: "🐾 动物模式",
   },
 };

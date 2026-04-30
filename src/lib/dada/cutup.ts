@@ -27,7 +27,11 @@ export function tokenize(input: string): string[] {
 
 export function generatePoem(input: string, seedKey: string): Poem {
   const words = tokenize(input);
-  if (words.length < 6) {
+  // Extract language from seedKey (format: lang|input|seed)
+  const lang = seedKey.split("|")[0];
+  // Skip 6-word minimum for Arabic and Chinese (different word/token rules)
+  const skipMinWords = lang === "ar" || lang === "zh";
+  if (!skipMinWords && words.length < 6) {
     throw new Error("NEED_MORE_WORDS");
   }
   const rng: RNG = makeRNG("poem:" + seedKey);

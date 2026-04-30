@@ -167,7 +167,12 @@ function Index() {
                 onChange={(e) => setAnimalsMode(e.target.checked)}
                 className="intro__animals-toggle-input"
               />
-              <span className="intro__animals-toggle-label">🐾 Animals Mode</span>
+              <span className="intro__animals-toggle-label">{t.animalsMode}</span>
+              {animalsMode && (
+                <span className="intro__animals-icons">
+                  🐱 🐶 🐦 🐟 🐰 🐢 🦋 🐌 🐘 🦁 🐸 🦆 🪼 🦎
+                </span>
+              )}
             </label>
             <p className="intro__lede">{t.lede}</p>
 

@@ -118,10 +118,40 @@ const ANIMAL_PATHS: Record<string, { body: string; dots: string; lines: string }
   },
 
   axolotl: {
-    body:  "M-26,0 Q-26,-14 -10,-16 Q0,-18 12,-16 Q24,-14 28,-6 Q30,4 22,12 Q10,16 0,16 Q-12,16 -22,14 Q-28,8 -26,0 Z M14,-12 Q26,-14 30,-6 Q32,2 28,8 Q22,12 16,10 Q12,4 14,-4 Z M-6,-14 Q-10,-22 -14,-28 Q-8,-26 -4,-22 Q0,-20 -6,-14 Z M2,-16 Q0,-26 -2,-32 Q4,-30 6,-22 Q8,-18 2,-16 Z M10,-16 Q12,-26 14,-32 Q18,-26 16,-20 Q16,-14 10,-16 Z M-14,12 Q-16,20 -20,22 Q-22,18 -18,14 Z M-4,14 Q-6,22 -10,24 Q-12,20 -8,16 Z M8,14 Q10,22 14,24 Q12,18 10,14 Z M18,10 Q22,18 24,20 Q22,14 20,10 Z M-26,-2 Q-38,-6 -42,0 Q-42,4 -38,6 Q-26,4 -26,2 Z",
-    dots:  "M22,-4 Q24,-6 26,-4 Q24,-2 22,-4 Z",
-    lines: "M16,4 Q22,10 26,6 M-10,-22 L-12,-26 M-8,-22 L-10,-28 M0,-26 L0,-30 M2,-24 L4,-30 M12,-24 L14,-30 M14,-22 L16,-28",
-  },
+    // A wider, flatter head for that classic "chonky" axolotl look
+    body: [
+      "M-35,0 Q-35,-25 0,-25 Q35,-25 35,0 Q35,20 0,20 Q-35,20 -35,0 Z", 
+      // Left stubby leg
+      "M-25,15 Q-30,25 -25,30 Q-20,30 -18,20",
+      // Right stubby leg
+      "M25,15 Q30,25 25,30 Q20,30 18,20",
+      // Paddle tail peeking from behind
+      "M-10,20 Q0,40 10,20 Z"
+    ].join(" "),
+
+    // Wide-set eyes and a tiny boop-able nose
+    dots: [
+      "M-22,-5 A3,3 0 1,0 -16,-5 A3,3 0 1,0 -22,-5", // Left eye
+      "M16,-5 A3,3 0 1,0 22,-5 A3,3 0 1,0 16,-5",   // Right eye
+      "M-2,2 L-1,3 M1,3 L2,2"                      // Tiny nostrils
+    ].join(" "),
+
+    // Lateral gill stalks and the signature "derpy" smile
+    lines: [
+      // The "I have no thoughts, only vibes" smile
+      "M-12,8 Q0,16 12,8",
+      // LEFT GILLS (Top, Middle, Bottom)
+      "M-32,-10 Q-50,-15 -55,-5", "M-55,-5 L-50,-8 M-55,-5 L-52,-2",
+      "M-35,0 Q-55,0 -60,10", "M-60,10 L-55,8 M-60,10 L-57,13",
+      "M-32,10 Q-50,15 -55,25", "M-55,25 L-50,22 M-55,25 L-52,28",
+      // RIGHT GILLS (Top, Middle, Bottom)
+      "M32,-10 Q50,-15 55,-5", "M55,-5 L50,-8 M55,-5 L52,-2",
+      "M35,0 Q55,0 60,10", "M60,10 L55,8 M60,10 L57,13",
+      "M32,10 Q50,15 55,25", "M55,25 L50,22 M55,25 L52,28"
+    ].join(" "),
+  }
+
+  
 };
 
 // Procedural Dada-style stamp phrases — much wider variety.
