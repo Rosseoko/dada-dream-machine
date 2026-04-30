@@ -1,383 +1,333 @@
-// Render a Dada manifesto broadside to a canvas.
-// Constructivist geometry + stamped manifesto texture, all chance-driven.
+// Rich SVG background for the Dada manifesto.
+// Draggable word scraps live as separate HTML, layered on top of this SVG.
 
-import type { Poem, PoemToken } from "./cutup";
+import { makeRNG, type RNG } from "./rng";
 
-const PAPER = "#efe7d3";
-const INK = "#1a1612";
-const RED = "#a51d1d";
-
-function rand(min: number, max: number) {
-  return min + Math.random() * (max - min);
-}
-function randi(min: number, max: number) {
-  return Math.floor(rand(min, max + 1));
-}
-function maybe(p: number) {
-  return Math.random() < p;
-}
-function pick<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-const STAMP_WORDS = [
-  "DADA",
-  "REFUSÉ",
-  "ZÜRICH 1916",
-  "MANIFESTE",
-  "CABARET VOLTAIRE",
-  "ANTI-ART",
-  "N° " + randi(3, 99),
-  "APPROUVÉ",
-  "HASARD",
-  "VU",
-  "EXEMPLAIRE",
-  "SANS TITRE",
-];
-
-export type DrawOptions = {
+export type BgOptions = {
   width: number;
   height: number;
-  scale?: number; // pixel density multiplier (e.g. 2 for retina)
+  seedKey: string;
+  headlineWord: string;
+  edition: number;
+  seedCode: string;
+  langDir: "ltr" | "rtl";
+  lang: string;
+  manifestoLabel: string;
+  editionLabel: string;
+  seedLabel: string;
 };
 
-export function drawManifesto(
-  canvas: HTMLCanvasElement,
-  poem: Poem,
-  opts: DrawOptions,
-) {
-  const scale = opts.scale ?? 2;
-  const W = opts.width;
-  const H = opts.height;
+const PAPER = "#efe7d3";
+const PAPER_2 = "#e8dcb9";
+const PAPER_3 = "#d9c79b";
+const INK = "#1a1612";
+const RED = "#a51d1d";
+const BLUE = "#1d3a6b";
+const OCHRE = "#b8862a";
 
-  canvas.width = Math.floor(W * scale);
-  canvas.height = Math.floor(H * scale);
-  canvas.style.width = `${W}px`;
-  canvas.style.height = `${H}px`;
+// Procedural Dada-style stamp phrases — much wider variety.
+const STAMP_BANK = [
+  "DADA","ANTI-ART","ANTI-ORDER","PRINT ERROR","CERTIFIED ACCIDENT",
+  "HASARD","REFUSÉ","APPROUVÉ","CENSORED","NOISE",
+  "VOID","SANS RAISON","VU","EXEMPLAIRE","SANS TITRE",
+  "MANIFESTE","CABARET","ZÜRICH","BERLIN","PARIS",
+  "NOT FOR SALE","FRAGILE","RETURN TO SENDER","FILE No.",
+  "LOST PROOF","PROOF #","ARCHIVE","REJECTED","SUSPECT",
+  "DO NOT FOLD","DUPLICATE","ORIGINAL","COPY OF COPY","TRUE FAKE",
+  "ANTI-LOGIC","CHANCE","BRUIT","SCANDALE","MERZ",
+  "SECTION 7B","BOX 14","DOSSIER","CONFIDENTIEL","NON CLASSÉ",
+  "BAD PRINT","SLIPPAGE","OFFSET","INK BLEED","OVERPRINT",
+];
 
-  const ctx = canvas.getContext("2d")!;
-  ctx.scale(scale, scale);
+const ARCHIVE_PREFIX = ["ARC","DOC","REF","FILE","BOX","SÉR","LOT","REG","FOLIO","CASE"];
 
-  // 1. Paper
-  drawPaper(ctx, W, H);
+function rint(rng: RNG, a: number, b: number) { return rng.rangeInt(a, b); }
+function rng2(rng: RNG, a: number, b: number) { return rng.range(a, b); }
 
-  // 2. Masthead
-  drawMasthead(ctx, W, H);
+export function buildBackgroundSVG(opts: BgOptions): string {
+  const { width: W, height: H, seedKey } = opts;
+  const rng = makeRNG("bg:" + seedKey);
+  const parts: string[] = [];
 
-  // 3. Geometry pass (background slabs)
-  drawGeometry(ctx, W, H);
+  // Defs: filters for grain / torn / halftone tile
+  parts.push(`<defs>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="${rint(rng,1,99)}" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.18 0"/>
+      <feComposite in2="SourceGraphic" operator="in"/>
+    </filter>
+    <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="${rint(rng,1,99)}"/>
+      <feDisplacementMap in="SourceGraphic" scale="6"/>
+    </filter>
+    <pattern id="halftone" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+      <circle cx="5" cy="5" r="2.2" fill="${INK}"/>
+    </pattern>
+    <pattern id="halftone-red" x="0" y="0" width="8" height="8" patternUnits="userSpaceOnUse">
+      <circle cx="4" cy="4" r="1.6" fill="${RED}"/>
+    </pattern>
+    <pattern id="newscol" x="0" y="0" width="6" height="14" patternUnits="userSpaceOnUse">
+      <rect width="5" height="2" fill="${INK}" opacity="0.6"/>
+      <rect y="4" width="4" height="2" fill="${INK}" opacity="0.5"/>
+      <rect y="8" width="5" height="2" fill="${INK}" opacity="0.55"/>
+      <rect y="12" width="3" height="1.5" fill="${INK}" opacity="0.5"/>
+    </pattern>
+  </defs>`);
 
-  // 4. Headline
-  drawHeadline(ctx, W, H, poem.headlineWord);
+  // 1. Paper base + warm gradient
+  parts.push(`<rect width="${W}" height="${H}" fill="${PAPER}"/>`);
+  parts.push(`<rect width="${W}" height="${H}" fill="url(#halftone)" opacity="0.04"/>`);
 
-  // 5. Poem columns
-  drawPoem(ctx, W, H, poem);
-
-  // 6. Stamps
-  drawStamps(ctx, W, H);
-
-  // 7. Ink artifacts
-  drawInk(ctx, W, H);
-
-  // 8. Footer marks
-  drawFooter(ctx, W, H);
-}
-
-function drawPaper(ctx: CanvasRenderingContext2D, W: number, H: number) {
-  ctx.fillStyle = PAPER;
-  ctx.fillRect(0, 0, W, H);
-
-  // Grain
-  const img = ctx.getImageData(0, 0, W, H);
-  const d = img.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const n = (Math.random() - 0.5) * 22;
-    d[i] = Math.max(0, Math.min(255, d[i] + n));
-    d[i + 1] = Math.max(0, Math.min(255, d[i + 1] + n));
-    d[i + 2] = Math.max(0, Math.min(255, d[i + 2] + n));
+  // Subtle paper-tone patches (stained areas)
+  for (let i = 0; i < 6; i++) {
+    const cx = rng2(rng, 0, W), cy = rng2(rng, 0, H);
+    const r = rng2(rng, W*0.15, W*0.45);
+    const c = rng.pick([PAPER_2, PAPER_3]);
+    parts.push(`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${c}" opacity="${rng2(rng,0.15,0.35).toFixed(2)}"/>`);
   }
-  ctx.putImageData(img, 0, 0);
 
-  // Vignette / aged edges
-  const grad = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.7);
-  grad.addColorStop(0, "rgba(0,0,0,0)");
-  grad.addColorStop(1, "rgba(60,40,20,0.25)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, W, H);
-}
+  // Folded paper crease lines
+  for (let i = 0; i < rint(rng,2,4); i++) {
+    const y = rng2(rng, H*0.1, H*0.9);
+    const skew = rng2(rng,-20,20);
+    parts.push(`<line x1="0" y1="${y}" x2="${W}" y2="${y+skew}" stroke="${INK}" stroke-width="0.6" opacity="0.12"/>`);
+  }
 
-function drawMasthead(ctx: CanvasRenderingContext2D, W: number, _H: number) {
-  const margin = W * 0.05;
-  ctx.fillStyle = INK;
-  ctx.font = `900 ${W * 0.04}px "Anton", "Bebas Neue", Impact, sans-serif`;
-  ctx.textBaseline = "top";
-  ctx.fillText("DADA", margin, margin);
+  // Faux newspaper text columns (background texture)
+  const colCount = rint(rng,2,4);
+  for (let i = 0; i < colCount; i++) {
+    const x = rng2(rng, W*0.05, W*0.85);
+    const y = rng2(rng, H*0.55, H*0.85);
+    const w = rng2(rng, W*0.08, W*0.18);
+    const h = rng2(rng, H*0.06, H*0.18);
+    const rot = rng2(rng,-3,3);
+    parts.push(`<g transform="translate(${x} ${y}) rotate(${rot})" opacity="${rng2(rng,0.25,0.5).toFixed(2)}">
+      <rect width="${w}" height="${h}" fill="url(#newscol)"/>
+    </g>`);
+  }
 
-  ctx.font = `400 ${W * 0.012}px "Special Elite", "Courier Prime", monospace`;
-  const issue = `N° ${randi(1, 99).toString().padStart(2, "0")}`;
-  const date = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" }).toUpperCase();
-  ctx.fillText(`${issue}   ·   ${date}   ·   PRIX: HASARD`, margin + W * 0.13, margin + W * 0.022);
+  // 2. Hidden grid → broken grid composition (anchor points)
+  const gridX = rint(rng, 4, 6);
+  const gridY = rint(rng, 5, 7);
+  const cellW = W / gridX;
+  const cellH = H / gridY;
+  const anchors: Array<[number, number]> = [];
+  for (let gx = 0; gx < gridX; gx++) {
+    for (let gy = 0; gy < gridY; gy++) {
+      anchors.push([gx*cellW + cellW/2 + rng2(rng,-cellW*0.3, cellW*0.3),
+                    gy*cellH + cellH/2 + rng2(rng,-cellH*0.3, cellH*0.3)]);
+    }
+  }
+  // shuffle anchors so we pick varied spots
+  const anchorPool = rng.shuffle(anchors);
+  let ai = 0;
+  const nextAnchor = () => anchorPool[(ai++) % anchorPool.length];
 
-  // Double rule line
-  ctx.fillStyle = INK;
-  ctx.fillRect(margin, margin + W * 0.055, W - margin * 2, 4);
-  ctx.fillRect(margin, margin + W * 0.055 + 8, W - margin * 2, 1);
-}
+  // 3. Big constructivist headline slab — diagonal red bar
+  {
+    const [cx, cy] = [W/2, H*0.25];
+    const angle = rng2(rng,-10,8);
+    parts.push(`<g transform="translate(${cx} ${cy}) rotate(${angle})">
+      <rect x="${-W*0.6}" y="${-H*0.07}" width="${W*1.2}" height="${H*0.14}" fill="${RED}"/>
+      <rect x="${-W*0.6}" y="${H*0.06}" width="${W*1.2}" height="${H*0.008}" fill="${INK}"/>
+    </g>`);
+    // Headline text — placed by SVG, big condensed face.
+    const fontSize = Math.min(W * 0.22, (W*0.9) / Math.max(opts.headlineWord.length*0.6, 1));
+    parts.push(`<g transform="translate(${cx} ${cy + fontSize*0.32}) rotate(${angle})">
+      <text text-anchor="middle" font-family="Anton, 'Bebas Neue', Impact, sans-serif"
+            font-weight="900" font-size="${fontSize}" fill="${INK}"
+            letter-spacing="-2">${escapeXml(opts.headlineWord)}</text>
+    </g>`);
+  }
 
-function drawGeometry(ctx: CanvasRenderingContext2D, W: number, H: number) {
-  const count = randi(3, 5);
-  for (let i = 0; i < count; i++) {
-    const kind = pick(["bar", "circle", "ring", "triangle", "arrow"] as const);
-    const color = maybe(0.55) ? RED : INK;
-    ctx.save();
-    ctx.fillStyle = color;
-    ctx.strokeStyle = color;
+  // 4. Layered geometry — bars, circles, rings, triangles, arrows, halftone shapes
+  const geoCount = rint(rng, 9, 14);
+  for (let i = 0; i < geoCount; i++) {
+    const kind = rng.pick(["bar","circle","ring","triangle","arrow","halfcircle","halftoneRect","warpCircle"] as const);
+    const color = rng.maybe(0.45) ? RED : rng.maybe(0.6) ? INK : rng.pick([BLUE, OCHRE, INK]);
+    const [ax, ay] = nextAnchor();
     switch (kind) {
       case "bar": {
-        const x = rand(W * 0.05, W * 0.6);
-        const y = rand(H * 0.15, H * 0.85);
-        const w = rand(W * 0.4, W * 0.9);
-        const h = rand(W * 0.015, W * 0.05);
-        ctx.translate(x, y);
-        ctx.rotate((rand(-25, 25) * Math.PI) / 180);
-        ctx.fillRect(-w / 2, -h / 2, w, h);
+        const w = rng2(rng, W*0.15, W*0.55);
+        const h = rng2(rng, W*0.012, W*0.04);
+        const r = rng2(rng,-30,30);
+        parts.push(`<rect x="${ax-w/2}" y="${ay-h/2}" width="${w}" height="${h}" fill="${color}" transform="rotate(${r} ${ax} ${ay})"/>`);
         break;
       }
       case "circle": {
-        const r = rand(W * 0.04, W * 0.13);
-        ctx.beginPath();
-        ctx.arc(rand(r, W - r), rand(H * 0.2, H - r), r, 0, Math.PI * 2);
-        ctx.fill();
+        const r = rng2(rng, W*0.025, W*0.09);
+        parts.push(`<circle cx="${ax}" cy="${ay}" r="${r}" fill="${color}"/>`);
         break;
       }
       case "ring": {
-        const r = rand(W * 0.05, W * 0.15);
-        ctx.lineWidth = rand(W * 0.005, W * 0.012);
-        ctx.beginPath();
-        ctx.arc(rand(r, W - r), rand(H * 0.2, H - r), r, 0, Math.PI * 2);
-        ctx.stroke();
+        const r = rng2(rng, W*0.04, W*0.12);
+        const sw = rng2(rng, W*0.005, W*0.014);
+        parts.push(`<circle cx="${ax}" cy="${ay}" r="${r}" fill="none" stroke="${color}" stroke-width="${sw}"/>`);
         break;
       }
       case "triangle": {
-        const s = rand(W * 0.08, W * 0.18);
-        const cx = rand(s, W - s);
-        const cy = rand(H * 0.2, H - s);
-        ctx.translate(cx, cy);
-        ctx.rotate((rand(0, 360) * Math.PI) / 180);
-        ctx.beginPath();
-        ctx.moveTo(0, -s / 2);
-        ctx.lineTo(s / 2, s / 2);
-        ctx.lineTo(-s / 2, s / 2);
-        ctx.closePath();
-        ctx.fill();
+        const s = rng2(rng, W*0.05, W*0.14);
+        const rot = rng2(rng,0,360);
+        parts.push(`<polygon points="0,${-s/2} ${s/2},${s/2} ${-s/2},${s/2}" fill="${color}" transform="translate(${ax} ${ay}) rotate(${rot})"/>`);
         break;
       }
       case "arrow": {
-        const len = rand(W * 0.15, W * 0.35);
-        const cx = rand(len / 2, W - len / 2);
-        const cy = rand(H * 0.25, H * 0.9);
-        ctx.translate(cx, cy);
-        ctx.rotate((rand(-30, 30) * Math.PI) / 180);
-        ctx.lineWidth = W * 0.008;
-        ctx.beginPath();
-        ctx.moveTo(-len / 2, 0);
-        ctx.lineTo(len / 2, 0);
-        ctx.stroke();
-        // arrowhead
-        ctx.beginPath();
-        ctx.moveTo(len / 2, 0);
-        ctx.lineTo(len / 2 - W * 0.025, -W * 0.018);
-        ctx.lineTo(len / 2 - W * 0.025, W * 0.018);
-        ctx.closePath();
-        ctx.fill();
+        const len = rng2(rng, W*0.12, W*0.3);
+        const rot = rng2(rng,-30,30);
+        const sw = W*0.008;
+        parts.push(`<g transform="translate(${ax} ${ay}) rotate(${rot})" stroke="${color}" fill="${color}" stroke-width="${sw}">
+          <line x1="${-len/2}" y1="0" x2="${len/2}" y2="0"/>
+          <polygon points="${len/2},0 ${len/2 - W*0.025},${-W*0.018} ${len/2 - W*0.025},${W*0.018}"/>
+        </g>`);
+        break;
+      }
+      case "halfcircle": {
+        const r = rng2(rng, W*0.05, W*0.13);
+        const rot = rng2(rng,0,360);
+        parts.push(`<path d="M ${-r} 0 A ${r} ${r} 0 0 1 ${r} 0 Z" fill="${color}" transform="translate(${ax} ${ay}) rotate(${rot})"/>`);
+        break;
+      }
+      case "halftoneRect": {
+        const w = rng2(rng, W*0.08, W*0.22);
+        const h = rng2(rng, W*0.05, W*0.16);
+        const rot = rng2(rng,-15,15);
+        const fill = rng.maybe(0.5) ? "url(#halftone)" : "url(#halftone-red)";
+        parts.push(`<rect x="${ax-w/2}" y="${ay-h/2}" width="${w}" height="${h}" fill="${fill}" transform="rotate(${rot} ${ax} ${ay})" opacity="0.85"/>`);
+        break;
+      }
+      case "warpCircle": {
+        const r = rng2(rng, W*0.04, W*0.11);
+        parts.push(`<circle cx="${ax}" cy="${ay}" r="${r}" fill="${color}" filter="url(#rough)" opacity="0.85"/>`);
         break;
       }
     }
-    ctx.restore();
-  }
-}
-
-function drawHeadline(ctx: CanvasRenderingContext2D, W: number, H: number, word: string) {
-  const margin = W * 0.05;
-  const maxWidth = W - margin * 2;
-  // Fit font size to width
-  let size = W * 0.22;
-  ctx.font = `900 ${size}px "Anton", "Bebas Neue", Impact, sans-serif`;
-  while (ctx.measureText(word).width > maxWidth && size > W * 0.08) {
-    size *= 0.92;
-    ctx.font = `900 ${size}px "Anton", "Bebas Neue", Impact, sans-serif`;
-  }
-  const y = H * 0.18 + size * 0.85;
-
-  // Red diagonal slab behind
-  if (maybe(0.7)) {
-    ctx.save();
-    ctx.translate(W / 2, y - size * 0.35);
-    ctx.rotate((rand(-6, 6) * Math.PI) / 180);
-    ctx.fillStyle = RED;
-    ctx.fillRect(-W * 0.55, -size * 0.18, W * 1.1, size * 0.55);
-    ctx.restore();
   }
 
-  ctx.save();
-  ctx.fillStyle = INK;
-  ctx.translate(W / 2, y);
-  ctx.rotate((rand(-3, 1) * Math.PI) / 180);
-  ctx.textAlign = "center";
-  ctx.textBaseline = "alphabetic";
-  ctx.font = `900 ${size}px "Anton", "Bebas Neue", Impact, sans-serif`;
-  ctx.fillText(word, 0, 0);
-  ctx.restore();
-}
-
-function drawPoem(ctx: CanvasRenderingContext2D, W: number, H: number, poem: Poem) {
-  const margin = W * 0.07;
-  const top = H * 0.48;
-  const bottom = H * 0.88;
-  const cols = maybe(0.6) ? 2 : 1;
-  const gutter = W * 0.04;
-  const colWidth = (W - margin * 2 - gutter * (cols - 1)) / cols;
-
-  const fontSize = W * 0.018;
-  const lineHeight = fontSize * 1.55;
-  ctx.font = `400 ${fontSize}px "Special Elite", "Courier Prime", monospace`;
-  ctx.fillStyle = INK;
-  ctx.textBaseline = "top";
-
-  // Distribute lines across columns
-  const linesPerCol = Math.ceil(poem.lines.length / cols);
-  for (let c = 0; c < cols; c++) {
-    const x = margin + c * (colWidth + gutter);
-    const colLines = poem.lines.slice(c * linesPerCol, (c + 1) * linesPerCol);
-    ctx.save();
-    ctx.translate(x, top);
-    ctx.rotate((rand(-0.8, 0.8) * Math.PI) / 180);
-    let y = 0;
-    for (const line of colLines) {
-      drawPoemLine(ctx, line, 0, y, colWidth, fontSize);
-      y += lineHeight;
-      if (y > bottom - top) break;
+  // 5. Torn polygon shards
+  for (let i = 0; i < rint(rng,3,6); i++) {
+    const [cx, cy] = nextAnchor();
+    const r = rng2(rng, W*0.04, W*0.12);
+    const pts: string[] = [];
+    const n = rint(rng, 6, 11);
+    for (let p = 0; p < n; p++) {
+      const a = (p/n) * Math.PI*2;
+      const rr = r * rng2(rng, 0.4, 1.4);
+      pts.push(`${cx + Math.cos(a)*rr},${cy + Math.sin(a)*rr}`);
     }
-    ctx.restore();
+    const col = rng.pick([PAPER_3, INK, RED, OCHRE]);
+    parts.push(`<polygon points="${pts.join(" ")}" fill="${col}" opacity="${rng2(rng,0.5,0.85).toFixed(2)}"/>`);
   }
-}
 
-function drawPoemLine(
-  ctx: CanvasRenderingContext2D,
-  line: PoemToken[],
-  x: number,
-  y: number,
-  _maxWidth: number,
-  fontSize: number,
-) {
-  let cursor = x;
-  const spaceW = ctx.measureText(" ").width;
-  for (const tok of line) {
-    const text = tok.caps ? tok.text.toUpperCase() : tok.text;
-    ctx.fillStyle = INK;
-    ctx.fillText(text, cursor, y);
-    const w = ctx.measureText(text).width;
-    if (tok.struck) {
-      ctx.fillStyle = INK;
-      ctx.fillRect(cursor - 1, y + fontSize * 0.55, w + 2, Math.max(1.5, fontSize * 0.09));
+  // 6. Barcode fragments
+  for (let i = 0; i < rint(rng,1,3); i++) {
+    const x = rng2(rng, W*0.05, W*0.8);
+    const y = rng2(rng, H*0.1, H*0.92);
+    const bw = rng2(rng, W*0.08, W*0.16);
+    const bh = rng2(rng, H*0.025, H*0.05);
+    const rot = rng2(rng,-8,8);
+    let bars = "";
+    let cx = 0;
+    while (cx < bw) {
+      const w = rng2(rng, 1, 4);
+      bars += `<rect x="${cx}" y="0" width="${w}" height="${bh}" fill="${INK}"/>`;
+      cx += w + rng2(rng, 1, 3);
     }
-    cursor += w + spaceW;
+    parts.push(`<g transform="translate(${x} ${y}) rotate(${rot})">${bars}
+      <text x="0" y="${bh+10}" font-family="Courier Prime, monospace" font-size="9" fill="${INK}">${rint(rng,1000000,9999999)} ${rint(rng,10,99)}</text>
+    </g>`);
   }
-}
 
-function drawStamps(ctx: CanvasRenderingContext2D, W: number, H: number) {
-  const count = randi(3, 6);
-  for (let i = 0; i < count; i++) {
-    const isCircle = maybe(0.55);
-    const color = maybe(0.5) ? RED : INK;
-    const x = rand(W * 0.08, W * 0.92);
-    const y = rand(H * 0.08, H * 0.95);
-    const rot = (rand(-25, 25) * Math.PI) / 180;
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(rot);
-    ctx.globalAlpha = rand(0.55, 0.85);
-    ctx.strokeStyle = color;
-    ctx.fillStyle = color;
-    ctx.lineWidth = Math.max(2, W * 0.004);
+  // 7. Ink splatters
+  for (let i = 0; i < rint(rng,3,6); i++) {
+    const cx = rng2(rng, W*0.05, W*0.95);
+    const cy = rng2(rng, H*0.08, H*0.95);
+    const r = rng2(rng, W*0.008, W*0.03);
+    const pts: string[] = [];
+    const n = rint(rng, 8, 14);
+    for (let p = 0; p < n; p++) {
+      const a = (p/n)*Math.PI*2;
+      const rr = r * rng2(rng, 0.6, 1.4);
+      pts.push(`${cx + Math.cos(a)*rr},${cy + Math.sin(a)*rr}`);
+    }
+    parts.push(`<polygon points="${pts.join(" ")}" fill="${INK}" opacity="${rng2(rng,0.6,0.9).toFixed(2)}"/>`);
+    for (let s = 0; s < rint(rng,4,9); s++) {
+      parts.push(`<circle cx="${cx + rng2(rng,-r*4,r*4)}" cy="${cy + rng2(rng,-r*4,r*4)}" r="${rng2(rng,0.5,2.5).toFixed(1)}" fill="${INK}" opacity="0.8"/>`);
+    }
+  }
 
-    const text = pick(STAMP_WORDS);
+  // 8. Scratches
+  for (let i = 0; i < rint(rng,4,9); i++) {
+    const x1 = rng2(rng,0,W), y1 = rng2(rng,0,H);
+    const len = rng2(rng, W*0.05, W*0.25);
+    const ang = rng2(rng,0,Math.PI*2);
+    parts.push(`<line x1="${x1}" y1="${y1}" x2="${x1+Math.cos(ang)*len}" y2="${y1+Math.sin(ang)*len}" stroke="${INK}" stroke-width="${rng2(rng,0.3,1).toFixed(2)}" opacity="${rng2(rng,0.15,0.4).toFixed(2)}"/>`);
+  }
 
-    if (isCircle) {
-      const r = rand(W * 0.045, W * 0.075);
-      ctx.beginPath();
-      ctx.arc(0, 0, r, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(0, 0, r * 0.78, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.font = `700 ${r * 0.32}px "Anton", "Bebas Neue", Impact, sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(text, 0, 0);
+  // 9. Procedural stamps — circular & rectangular & archive labels
+  const stampCount = rint(rng, 5, 8);
+  for (let i = 0; i < stampCount; i++) {
+    const kind = rng.pick(["circle","rect","archive"] as const);
+    const text = rng.pick(STAMP_BANK);
+    const color = rng.maybe(0.55) ? RED : INK;
+    const [x, y] = nextAnchor();
+    const rot = rng2(rng,-28,28);
+    const opacity = rng2(rng,0.55,0.85).toFixed(2);
+    if (kind === "circle") {
+      const r = rng2(rng, W*0.045, W*0.08);
+      parts.push(`<g transform="translate(${x} ${y}) rotate(${rot})" opacity="${opacity}" filter="url(#rough)">
+        <circle cx="0" cy="0" r="${r}" fill="none" stroke="${color}" stroke-width="3"/>
+        <circle cx="0" cy="0" r="${r*0.78}" fill="none" stroke="${color}" stroke-width="2"/>
+        <text text-anchor="middle" dominant-baseline="middle" font-family="Anton, sans-serif" font-weight="900" font-size="${r*0.34}" fill="${color}">${escapeXml(text)}</text>
+        <text text-anchor="middle" dominant-baseline="middle" y="${r*0.55}" font-family="Courier Prime, monospace" font-size="${r*0.18}" fill="${color}">N°${rint(rng,10,9999)}</text>
+      </g>`);
+    } else if (kind === "rect") {
+      const fontSize = W*0.022;
+      const tw = text.length * fontSize * 0.55;
+      const pad = W*0.012;
+      parts.push(`<g transform="translate(${x} ${y}) rotate(${rot})" opacity="${opacity}" filter="url(#rough)">
+        <rect x="${-tw/2-pad}" y="${-W*0.022}" width="${tw+pad*2}" height="${W*0.044}" fill="none" stroke="${color}" stroke-width="3"/>
+        <text text-anchor="middle" dominant-baseline="middle" font-family="Anton, sans-serif" font-weight="900" font-size="${fontSize}" fill="${color}">${escapeXml(text)}</text>
+      </g>`);
     } else {
-      ctx.font = `700 ${W * 0.022}px "Anton", "Bebas Neue", Impact, sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      const tw = ctx.measureText(text).width;
-      const pad = W * 0.012;
-      ctx.strokeRect(-tw / 2 - pad, -W * 0.018, tw + pad * 2, W * 0.036);
-      ctx.fillText(text, 0, 0);
+      // archive label — small typewritten paper tag
+      const code = `${rng.pick(ARCHIVE_PREFIX)}-${rint(rng,100,9999)}/${String.fromCharCode(65+rint(rng,0,25))}${String.fromCharCode(65+rint(rng,0,25))}`;
+      const w = W*0.13, h = W*0.04;
+      parts.push(`<g transform="translate(${x} ${y}) rotate(${rot})" opacity="${opacity}">
+        <rect x="${-w/2}" y="${-h/2}" width="${w}" height="${h}" fill="${PAPER}" stroke="${INK}" stroke-width="1"/>
+        <text text-anchor="middle" dominant-baseline="middle" y="-3" font-family="Courier Prime, monospace" font-size="${W*0.012}" fill="${INK}">${escapeXml(code)}</text>
+        <text text-anchor="middle" dominant-baseline="middle" y="${W*0.013}" font-family="Courier Prime, monospace" font-size="${W*0.0095}" fill="${INK}" opacity="0.75">${escapeXml(text)}</text>
+      </g>`);
     }
-
-    // Grain over the stamp — speckle by erasing random bits
-    ctx.globalCompositeOperation = "destination-out";
-    for (let s = 0; s < 60; s++) {
-      ctx.fillStyle = "rgba(0,0,0,1)";
-      ctx.fillRect(rand(-W * 0.08, W * 0.08), rand(-W * 0.04, W * 0.04), rand(0.5, 2), rand(0.5, 2));
-    }
-    ctx.restore();
   }
+
+  // 10. Top & bottom mastheads, seed + edition
+  parts.push(`<g>
+    <rect x="${W*0.05}" y="${W*0.075}" width="${W*0.9}" height="3" fill="${INK}"/>
+    <rect x="${W*0.05}" y="${W*0.082}" width="${W*0.9}" height="1" fill="${INK}"/>
+    <text x="${W*0.05}" y="${W*0.06}" font-family="Anton, sans-serif" font-weight="900" font-size="${W*0.04}" fill="${INK}">DADA</text>
+    <text x="${W*0.18}" y="${W*0.06}" font-family="Courier Prime, monospace" font-size="${W*0.013}" fill="${INK}">${escapeXml(opts.editionLabel)} ${opts.edition.toString().padStart(4,"0")}  ·  ${escapeXml(opts.manifestoLabel)}  ·  ${escapeXml(opts.seedLabel)} ${escapeXml(opts.seedCode)}  ·  LANG ${opts.lang.toUpperCase()}</text>
+  </g>`);
+
+  // Footer rule and serial
+  parts.push(`<g>
+    <rect x="${W*0.05}" y="${H - W*0.05}" width="${W*0.9}" height="1" fill="${INK}"/>
+    <text x="${W*0.05}" y="${H - W*0.025}" font-family="Courier Prime, monospace" font-size="${W*0.012}" fill="${INK}">SÉR. ${rint(rng,1000,9999)}-${String.fromCharCode(65+rint(rng,0,25))}${String.fromCharCode(65+rint(rng,0,25))}  ·  IMPRIMÉ PAR LE HASARD</text>
+    <text x="${W*0.95}" y="${H - W*0.025}" text-anchor="end" font-family="Anton, sans-serif" font-weight="900" font-size="${W*0.018}" fill="${RED}">${escapeXml(opts.seedCode)}</text>
+  </g>`);
+
+  // 11. Vignette / aged edges
+  parts.push(`<rect width="${W}" height="${H}" fill="url(#vgrad)" opacity="0.25" pointer-events="none"/>`);
+  parts.push(`<defs><radialGradient id="vgrad" cx="50%" cy="50%" r="75%">
+    <stop offset="40%" stop-color="rgba(0,0,0,0)"/>
+    <stop offset="100%" stop-color="rgba(60,40,20,0.6)"/>
+  </radialGradient></defs>`);
+
+  // 12. Heavy grain overlay
+  parts.push(`<rect width="${W}" height="${H}" filter="url(#grain)" opacity="0.6"/>`);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" preserveAspectRatio="xMidYMid meet">${parts.join("")}</svg>`;
 }
 
-function drawInk(ctx: CanvasRenderingContext2D, W: number, H: number) {
-  const count = randi(1, 3);
-  for (let i = 0; i < count; i++) {
-    const cx = rand(W * 0.05, W * 0.95);
-    const cy = rand(H * 0.1, H * 0.95);
-    const r = rand(W * 0.01, W * 0.04);
-    ctx.save();
-    ctx.fillStyle = INK;
-    ctx.globalAlpha = rand(0.5, 0.9);
-    ctx.beginPath();
-    const points = randi(8, 14);
-    for (let p = 0; p <= points; p++) {
-      const a = (p / points) * Math.PI * 2;
-      const rr = r * rand(0.6, 1.3);
-      const x = cx + Math.cos(a) * rr;
-      const y = cy + Math.sin(a) * rr;
-      if (p === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.fill();
-    // Splatter
-    for (let s = 0; s < randi(3, 8); s++) {
-      ctx.beginPath();
-      ctx.arc(cx + rand(-r * 3, r * 3), cy + rand(-r * 3, r * 3), rand(0.5, 2.5), 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-}
-
-function drawFooter(ctx: CanvasRenderingContext2D, W: number, H: number) {
-  const margin = W * 0.05;
-  ctx.fillStyle = INK;
-  ctx.font = `400 ${W * 0.011}px "Special Elite", "Courier Prime", monospace`;
-  ctx.textBaseline = "alphabetic";
-  ctx.textAlign = "left";
-  const serial = `SÉR. ${randi(1000, 9999)}-${String.fromCharCode(65 + randi(0, 25))}${String.fromCharCode(65 + randi(0, 25))}`;
-  ctx.fillText(serial, margin, H - margin * 0.6);
-
-  ctx.textAlign = "right";
-  ctx.fillText("IMPRIMÉ PAR LE HASARD", W - margin, H - margin * 0.6);
-
-  // Footer rule
-  ctx.fillRect(margin, H - margin, W - margin * 2, 1);
+function escapeXml(s: string): string {
+  return s.replace(/[<>&"']/g, (c) => ({"<":"&lt;",">":"&gt;","&":"&amp;","\"":"&quot;","'":"&apos;"}[c]!));
 }
