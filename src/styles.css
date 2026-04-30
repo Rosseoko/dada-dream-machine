@@ -352,6 +352,54 @@
   gap: 0.5rem;
 }
 
+.intro__animals-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #FFE66D 0%, #FF6B6B 50%, #4ECDC4 100%);
+  background-size: 200% 200%;
+  border-radius: 20px;
+  font-family: "Anton", "Bebas Neue", sans-serif;
+  font-size: 1.2rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  user-select: none;
+  animation: gradient-shift 3s ease infinite;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.intro__animals-toggle-input {
+  width: 1.5rem;
+  height: 1.5rem;
+  cursor: pointer;
+  accent-color: #FF6B6B;
+  transform: scale(1.1);
+}
+
+.intro__animals-toggle-label {
+  color: #FFFFFF;
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.intro__animals-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+}
+
+.intro__animals-toggle:hover .intro__animals-toggle-label {
+  transform: scale(1.05);
+}
+
 /* ---- Result / Poster ---- */
 .result {
   position: relative;

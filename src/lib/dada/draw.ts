@@ -15,6 +15,7 @@ export type BgOptions = {
   manifestoLabel: string;
   editionLabel: string;
   seedLabel: string;
+  animalsMode?: boolean;
 };
 
 const PAPER = "#efe7d3";
@@ -24,6 +25,104 @@ const INK = "#1a1612";
 const RED = "#a51d1d";
 const BLUE = "#1d3a6b";
 const OCHRE = "#b8862a";
+
+// Palette C — vintage risograph, tuned for cream paper #efe7d3 + INK outlines
+const CRAYON_RED    = "#D95B4A";   // tomato — warm, not aggressive
+const CRAYON_BLUE   = "#4A8EC4";   // cornflower — clear mid-blue
+const CRAYON_YELLOW = "#C9A020";   // golden amber — actually visible on cream
+const CRAYON_GREEN  = "#5A9E6F";   // forest mint — friendly, readable
+const CRAYON_ORANGE = "#C97A38";   // burnt sienna — harmonizes with paper
+const CRAYON_PURPLE = "#9560C0";   // grape — rich enough to pop
+
+// Animal silhouettes: 3-layer system for sticker-like clarity.
+// body = filled+outlined silhouette, dots = solid features (eyes/nose),
+// lines = open strokes (whiskers/tails/mouth). Coords centered at (0,0), ~70u span.
+const ANIMAL_PATHS: Record<string, { body: string; dots: string; lines: string }> = {
+
+  cat: {
+    body:  "M-16,30 Q-22,18 -22,6 Q-22,-8 -18,-14 L-22,-32 L-6,-18 Q0,-20 6,-18 L22,-32 L18,-14 Q22,-8 22,6 Q22,18 16,30 Q0,34 -16,30 Z",
+    dots:  "M-8,-6 Q-6,-9 -3,-6 Q-6,-3 -8,-6 Z M3,-6 Q6,-9 8,-6 Q6,-3 3,-6 Z M-2,2 L0,5 L2,2 Z",
+    lines: "M22,16 Q36,10 38,-6 Q36,-18 26,-18 M-14,-2 L-4,-2 M-14,2 L-4,1 M14,-2 L4,-2 M14,2 L4,1 M-3,8 Q0,10 3,8",
+  },
+
+  dog: {
+    body:  "M-12,32 Q-24,28 -24,16 Q-26,8 -22,2 Q-32,-2 -32,-14 Q-28,-26 -18,-26 Q-14,-22 -10,-22 Q0,-26 10,-22 Q14,-22 18,-26 Q28,-26 32,-14 Q32,-2 22,2 Q26,8 24,16 Q24,28 12,32 Q0,34 -12,32 Z",
+    dots:  "M-8,-12 Q-6,-15 -3,-12 Q-6,-9 -8,-12 Z M3,-12 Q6,-15 8,-12 Q6,-9 3,-12 Z M-3,-2 Q0,-5 3,-2 Q0,1 -3,-2 Z",
+    lines: "M22,16 Q34,8 36,-4 Q36,-14 28,-16 M-3,5 Q0,8 3,5 M0,1 L0,5",
+  },
+
+  bird: {
+    body:  "M0,-22 Q-22,-20 -24,-4 Q-22,12 -8,16 Q0,18 8,16 Q22,12 24,-4 Q22,-20 0,-22 Z M22,-6 L34,-4 L22,2 Z M-22,-2 L-30,-8 L-30,0 L-30,8 L-22,4 Z",
+    dots:  "M14,-12 Q16,-15 18,-12 Q16,-9 14,-12 Z",
+    lines: "M-8,-8 Q4,-14 16,-6 Q14,2 4,4 Q-6,2 -8,-8 M-4,16 L-6,24 M4,16 L6,24",
+  },
+
+  fish: {
+    body:  "M-2,0 Q4,-18 22,-16 Q34,-12 36,0 Q34,12 22,16 Q4,18 -2,0 Z M-2,0 L-22,-12 L-14,0 L-22,12 Z M10,-16 Q16,-26 24,-22 Q22,-16 16,-14 Z",
+    dots:  "M26,-4 Q28,-6 30,-4 Q28,-2 26,-4 Z",
+    lines: "M14,-8 Q12,0 14,8 M32,-2 Q36,0 32,2 M14,4 Q22,6 28,4",
+  },
+
+  rabbit: {
+    body:  "M0,28 Q-20,26 -22,10 Q-24,-4 -16,-12 Q-18,-14 -16,-18 Q-14,-38 -8,-38 Q-2,-38 -4,-12 Q0,-14 4,-12 Q2,-38 8,-38 Q14,-38 16,-18 Q18,-14 16,-12 Q24,-4 22,10 Q20,26 0,28 Z M-18,22 Q-26,20 -24,12 Q-18,12 -16,18 Z",
+    dots:  "M-7,-2 Q-5,-5 -3,-2 Q-5,1 -7,-2 Z M3,-2 Q5,-5 7,-2 Q5,1 3,-2 Z M-2,4 L0,7 L2,4 Z",
+    lines: "M-12,5 L-4,4 M-12,8 L-4,7 M12,5 L4,4 M12,8 L4,7",
+  },
+
+  turtle: {
+    body:  "M0,10 Q-26,8 -28,-4 Q-26,-22 0,-24 Q26,-22 28,-4 Q26,10 0,10 Z M28,-4 Q36,-6 38,0 Q36,6 28,4 Q24,2 24,-2 Z M-14,8 Q-18,18 -22,22 Q-26,20 -22,12 Q-18,8 -14,6 Z M14,8 Q18,18 22,22 Q26,20 22,12 Q18,8 14,6 Z M-14,-12 Q-18,-22 -22,-22 Q-22,-16 -18,-12 Z M14,-12 Q18,-22 22,-22 Q22,-16 18,-12 Z M-28,-4 L-34,-2 L-32,2 Z",
+    dots:  "M32,-2 Q34,-4 36,-2 Q34,0 32,-2 Z",
+    lines: "M0,-20 L0,-2 M-12,-18 L-10,-2 M12,-18 L10,-2 M-22,-8 L-8,-4 M22,-8 L8,-4",
+  },
+
+  butterfly: {
+    body:  "M0,0 Q-12,-6 -22,-20 Q-30,-32 -18,-32 Q-8,-30 0,-12 Z M0,0 Q12,-6 22,-20 Q30,-32 18,-32 Q8,-30 0,-12 Z M0,2 Q-22,6 -26,18 Q-22,28 -10,26 Q-2,22 0,8 Z M0,2 Q22,6 26,18 Q22,28 10,26 Q2,22 0,8 Z M0,-14 Q-2,-4 -2,12 Q0,16 2,12 Q2,-4 0,-14 Z",
+    dots:  "M-14,-22 Q-12,-25 -10,-22 Q-12,-19 -14,-22 Z M14,-22 Q16,-25 18,-22 Q16,-19 14,-22 Z M-16,16 Q-14,13 -12,16 Q-14,19 -16,16 Z M16,16 Q18,13 20,16 Q18,19 16,16 Z",
+    lines: "M0,-14 Q-4,-22 -8,-30 M0,-14 Q4,-22 8,-30",
+  },
+
+  snail: {
+    body:  "M-30,16 Q-36,14 -36,8 Q-30,4 -20,6 L20,6 Q26,8 24,14 Q18,18 0,18 Q-20,18 -30,16 Z M-2,4 Q-16,2 -16,-8 Q-14,-18 0,-18 Q14,-18 16,-8 Q14,2 -2,4 Z M-30,12 Q-38,10 -42,4 Q-42,2 -38,2 Q-32,4 -28,8 Z",
+    dots:  "M-44,-2 Q-46,-2 -46,0 Q-44,2 -42,0 Q-42,-2 -44,-2 Z M-40,-4 Q-42,-4 -42,-2 Q-40,0 -38,-2 Q-38,-4 -40,-4 Z",
+    lines: "M-40,4 L-44,-2 M-36,4 L-40,-4 M0,-2 Q-6,-4 -4,-10 Q2,-14 6,-8 Q4,-2 0,-2",
+  },
+
+  elephant: {
+    body:  "M-22,-8 Q-26,-22 -8,-24 Q0,-26 10,-24 Q22,-22 26,-8 Q28,8 22,16 Q12,18 -10,18 Q-22,18 -26,12 Q-28,2 -22,-8 Z M16,-20 Q30,-20 32,-8 Q32,2 26,4 Q20,4 16,-2 Q14,-12 16,-20 Z M30,-2 Q34,6 32,16 Q30,24 22,24 Q22,20 26,18 Q24,12 22,14 Z M-8,-18 Q-22,-16 -24,-2 Q-22,8 -10,8 Q-6,2 -6,-10 Z M-20,16 L-22,28 L-14,28 L-14,16 Z M-6,18 L-8,30 L0,30 L0,18 Z M8,18 L8,30 L16,30 L16,18 Z M18,14 L18,28 L24,28 L22,14 Z M-26,2 Q-32,4 -34,-2 L-32,-4 Z",
+    dots:  "M22,-12 Q24,-14 26,-12 Q24,-10 22,-12 Z",
+    lines: "M22,4 Q28,12 24,16",
+  },
+
+  lion: {
+    body:  "M0,4 Q-32,-2 -34,-18 Q-32,-36 -14,-38 Q0,-40 14,-38 Q32,-36 34,-18 Q32,-2 0,4 Z M0,-2 Q-16,-4 -18,-16 Q-16,-28 0,-30 Q16,-28 18,-16 Q16,-4 0,-2 Z M-12,-30 L-16,-38 L-6,-32 Z M12,-30 L16,-38 L6,-32 Z M-12,4 Q-14,16 0,18 Q14,16 12,4 Z",
+    dots:  "M-8,-18 Q-6,-21 -3,-18 Q-6,-15 -8,-18 Z M3,-18 Q6,-21 8,-18 Q6,-15 3,-18 Z M-2,-10 L0,-7 L2,-10 Z",
+    lines: "M-6,-6 Q0,-2 6,-6 M0,-32 L0,-38 M-14,-26 L-22,-32 M14,-26 L22,-32 M-18,-12 L-30,-12 M18,-12 L30,-12",
+  },
+
+  frog: {
+    body:  "M0,16 Q-26,12 -28,-2 Q-26,-14 -14,-16 Q-12,-22 -6,-18 L-2,-12 L2,-12 L6,-18 Q12,-22 14,-16 Q26,-14 28,-2 Q26,12 0,16 Z M-12,-18 Q-18,-24 -16,-12 Q-12,-8 -8,-10 Q-6,-16 -12,-18 Z M12,-18 Q18,-24 16,-12 Q12,-8 8,-10 Q6,-16 12,-18 Z M-26,4 Q-36,8 -38,14 Q-32,18 -28,12 Q-24,8 -26,4 Z M26,4 Q36,8 38,14 Q32,18 28,12 Q24,8 26,4 Z M-18,16 Q-22,26 -28,28 Q-34,28 -32,20 Q-26,18 -22,14 Z M18,16 Q22,26 28,28 Q34,28 32,20 Q26,18 22,14 Z",
+    dots:  "M-12,-16 Q-10,-18 -10,-15 Q-12,-13 -12,-16 Z M12,-16 Q14,-18 14,-15 Q12,-13 12,-16 Z",
+    lines: "M-10,4 Q0,12 10,4",
+  },
+
+  duck: {
+    body:  "M-2,-12 Q-22,-10 -24,4 Q-22,16 0,18 Q22,16 24,4 Q22,-10 -2,-12 Z M16,-12 Q24,-14 24,-4 Q22,4 14,4 Q8,2 8,-6 Q10,-12 16,-12 Z M22,-6 L34,-4 L22,2 L24,-2 Z M-4,-4 Q6,-12 16,-6 Q18,-2 14,4 Q4,4 -4,-4 Z M-22,2 L-32,-4 L-30,2 L-32,8 L-22,6 Z",
+    dots:  "M18,-8 Q20,-10 22,-8 Q20,-6 18,-8 Z",
+    lines: "M22,-2 L34,-4 M-2,18 L-2,26 M6,18 L6,26",
+  },
+
+  jellyfish: {
+    body:  "M0,4 Q-28,4 -30,-8 Q-26,-26 -12,-32 Q0,-36 12,-32 Q26,-26 30,-8 Q28,4 0,4 Z M-30,-2 Q-26,4 -22,-1 Q-18,4 -14,-1 Q-10,4 -6,-1 Q-2,4 2,-1 Q6,4 10,-1 Q14,4 18,-1 Q22,4 26,-1 Q30,4 30,-2 L-30,-2 Z",
+    dots:  "M-10,-14 Q-8,-16 -6,-14 Q-8,-12 -10,-14 Z M6,-18 Q8,-20 10,-18 Q8,-16 6,-18 Z M14,-8 Q16,-10 18,-8 Q16,-6 14,-8 Z M-18,-8 Q-16,-10 -14,-8 Q-16,-6 -18,-8 Z",
+    lines: "M-22,4 Q-26,16 -20,28 Q-16,40 -22,50 M-14,4 Q-16,18 -12,30 Q-8,42 -14,52 M-6,4 Q-6,20 -4,32 Q-2,44 -6,54 M4,4 Q6,20 4,32 Q4,44 6,54 M12,4 Q14,16 12,28 Q10,40 14,50 M20,4 Q24,14 20,26 Q16,38 22,48",
+  },
+
+  axolotl: {
+    body:  "M-26,0 Q-26,-14 -10,-16 Q0,-18 12,-16 Q24,-14 28,-6 Q30,4 22,12 Q10,16 0,16 Q-12,16 -22,14 Q-28,8 -26,0 Z M14,-12 Q26,-14 30,-6 Q32,2 28,8 Q22,12 16,10 Q12,4 14,-4 Z M-6,-14 Q-10,-22 -14,-28 Q-8,-26 -4,-22 Q0,-20 -6,-14 Z M2,-16 Q0,-26 -2,-32 Q4,-30 6,-22 Q8,-18 2,-16 Z M10,-16 Q12,-26 14,-32 Q18,-26 16,-20 Q16,-14 10,-16 Z M-14,12 Q-16,20 -20,22 Q-22,18 -18,14 Z M-4,14 Q-6,22 -10,24 Q-12,20 -8,16 Z M8,14 Q10,22 14,24 Q12,18 10,14 Z M18,10 Q22,18 24,20 Q22,14 20,10 Z M-26,-2 Q-38,-6 -42,0 Q-42,4 -38,6 Q-26,4 -26,2 Z",
+    dots:  "M22,-4 Q24,-6 26,-4 Q24,-2 22,-4 Z",
+    lines: "M16,4 Q22,10 26,6 M-10,-22 L-12,-26 M-8,-22 L-10,-28 M0,-26 L0,-30 M2,-24 L4,-30 M12,-24 L14,-30 M14,-22 L16,-28",
+  },
+};
 
 // Procedural Dada-style stamp phrases — much wider variety.
 const STAMP_BANK = [
@@ -101,8 +200,12 @@ export function buildBackgroundSVG(opts: BgOptions): string {
     const w = rng2(rng, W*0.08, W*0.18);
     const h = rng2(rng, H*0.06, H*0.18);
     const rot = rng2(rng,-3,3);
+    // In animals mode, use bright primary colors for newspaper texture
+    const fillPattern = opts.animalsMode 
+      ? rng.pick([CRAYON_RED, CRAYON_BLUE, CRAYON_YELLOW, CRAYON_GREEN, CRAYON_ORANGE, CRAYON_PURPLE])
+      : "url(#newscol)";
     parts.push(`<g transform="translate(${x} ${y}) rotate(${rot})" opacity="${rng2(rng,0.25,0.5).toFixed(2)}">
-      <rect width="${w}" height="${h}" fill="url(#newscol)"/>
+      <rect width="${w}" height="${h}" fill="${fillPattern}"/>
     </g>`);
   }
 
@@ -127,8 +230,12 @@ export function buildBackgroundSVG(opts: BgOptions): string {
   {
     const [cx, cy] = [W/2, H*0.25];
     const angle = rng2(rng,-10,8);
+    // In animals mode, use random primary color for headline strip
+    const headlineColor = opts.animalsMode 
+      ? rng.pick([CRAYON_RED, CRAYON_BLUE, CRAYON_YELLOW, CRAYON_GREEN, CRAYON_ORANGE, CRAYON_PURPLE])
+      : RED;
     parts.push(`<g transform="translate(${cx} ${cy}) rotate(${angle})">
-      <rect x="${-W*0.6}" y="${-H*0.07}" width="${W*1.2}" height="${H*0.14}" fill="${RED}"/>
+      <rect x="${-W*0.6}" y="${-H*0.07}" width="${W*1.2}" height="${H*0.14}" fill="${headlineColor}"/>
       <rect x="${-W*0.6}" y="${H*0.06}" width="${W*1.2}" height="${H*0.008}" fill="${INK}"/>
     </g>`);
     // Headline text — placed by SVG, big condensed face.
@@ -300,6 +407,17 @@ export function buildBackgroundSVG(opts: BgOptions): string {
     }
   }
 
+  // 9.5. Animals mode: Add animal silhouettes and scribbles
+  if (opts.animalsMode) {
+    // Add animal silhouettes
+    const animalCount = rint(rng, 6, 10);
+    parts.push(generateAnimals(rng, W, H, animalCount, anchors));
+    
+    // Add child-like scribbles
+    const scribbleCount = rint(rng, 8, 15);
+    parts.push(generateScribbles(rng, W, H, scribbleCount));
+  }
+
   // 10. Top & bottom mastheads, seed + edition
   parts.push(`<g>
     <rect x="${W*0.05}" y="${W*0.075}" width="${W*0.9}" height="3" fill="${INK}"/>
@@ -330,4 +448,145 @@ export function buildBackgroundSVG(opts: BgOptions): string {
 
 function escapeXml(s: string): string {
   return s.replace(/[<>&"']/g, (c) => ({"<":"&lt;",">":"&gt;","&":"&amp;","\"":"&quot;","'":"&apos;"}[c]!));
+}
+
+// Generate child-like geometric scribbles for animals mode
+function generateScribbles(rng: RNG, W: number, H: number, count: number): string {
+  const parts: string[] = [];
+  const colors = [CRAYON_RED, CRAYON_BLUE, CRAYON_YELLOW, CRAYON_GREEN, CRAYON_ORANGE, CRAYON_PURPLE];
+  const shapes = ["line", "circle", "spiral", "zigzag", "triangle", "star"];
+  
+  for (let i = 0; i < count; i++) {
+    const x = rng2(rng, W*0.05, W*0.95);
+    const y = rng2(rng, H*0.05, H*0.95);
+    const color = rng.pick(colors);
+    const shape = rng.pick(shapes);
+    const size = rng2(rng, W*0.03, W*0.12);
+    const strokeWidth = rng2(rng, 3, 6);
+    const opacity = rng2(rng, 0.5, 0.85);
+    const rot = rng2(rng, 0, 360);
+    
+    switch (shape) {
+      case "line": {
+        const len = rng2(rng, W*0.05, W*0.25);
+        const angle = rng2(rng, 0, Math.PI * 2);
+        const x2 = x + Math.cos(angle) * len;
+        const y2 = y + Math.sin(angle) * len;
+        parts.push(`<line x1="${x}" y1="${y}" x2="${x2}" y2="${y2}" 
+          stroke="${color}" stroke-width="${strokeWidth.toFixed(1)}" 
+          stroke-linecap="round" opacity="${opacity.toFixed(2)}" filter="url(#rough)"/>`);
+        break;
+      }
+      case "circle": {
+        const r = size;
+        parts.push(`<circle cx="${x}" cy="${y}" r="${r}" 
+          fill="none" stroke="${color}" stroke-width="${strokeWidth.toFixed(1)}" 
+          opacity="${opacity.toFixed(2)}" filter="url(#rough)"/>`);
+        break;
+      }
+      case "spiral": {
+        const points: string[] = [];
+        const turns = rint(rng, 2, 4);
+        const segments = turns * 20;
+        for (let j = 0; j <= segments; j++) {
+          const t = j / segments;
+          const angle = t * turns * Math.PI * 2;
+          const r = size * t;
+          const px = x + Math.cos(angle) * r;
+          const py = y + Math.sin(angle) * r;
+          points.push(`${px},${py}`);
+        }
+        parts.push(`<polyline points="${points.join(" ")}" 
+          fill="none" stroke="${color}" stroke-width="${strokeWidth.toFixed(1)}" 
+          stroke-linecap="round" stroke-linejoin="round"
+          opacity="${opacity.toFixed(2)}" filter="url(#rough)"/>`);
+        break;
+      }
+      case "zigzag": {
+        const points: string[] = [];
+        const len = rng2(rng, W*0.08, W*0.2);
+        const segments = rint(rng, 6, 12);
+        const angle = rng2(rng, 0, Math.PI * 2);
+        for (let j = 0; j <= segments; j++) {
+          const t = j / segments;
+          const baseX = x + Math.cos(angle) * len * t;
+          const baseY = y + Math.sin(angle) * len * t;
+          const offset = (j % 2 === 0 ? 1 : -1) * size * 0.5;
+          const perpAngle = angle + Math.PI / 2;
+          const px = baseX + Math.cos(perpAngle) * offset;
+          const py = baseY + Math.sin(perpAngle) * offset;
+          points.push(`${px},${py}`);
+        }
+        parts.push(`<polyline points="${points.join(" ")}" 
+          fill="none" stroke="${color}" stroke-width="${strokeWidth.toFixed(1)}" 
+          stroke-linecap="round" stroke-linejoin="round"
+          opacity="${opacity.toFixed(2)}" filter="url(#rough)"/>`);
+        break;
+      }
+      case "triangle": {
+        const r = size;
+        const points = [
+          `${x},${y - r}`,
+          `${x - r * 0.866},${y + r * 0.5}`,
+          `${x + r * 0.866},${y + r * 0.5}`,
+          `${x},${y - r}`
+        ];
+        parts.push(`<polygon points="${points.join(" ")}" 
+          fill="none" stroke="${color}" stroke-width="${strokeWidth.toFixed(1)}" 
+          opacity="${opacity.toFixed(2)}" filter="url(#rough)" 
+          transform="rotate(${rot} ${x} ${y})"/>`);
+        break;
+      }
+      case "star": {
+        const r = size;
+        const points: string[] = [];
+        const pointsCount = 5;
+        for (let j = 0; j < pointsCount * 2; j++) {
+          const angle = (j * Math.PI) / pointsCount - Math.PI / 2;
+          const radius = j % 2 === 0 ? r : r * 0.4;
+          const px = x + Math.cos(angle) * radius;
+          const py = y + Math.sin(angle) * radius;
+          points.push(`${px},${py}`);
+        }
+        points.push(points[0]);
+        parts.push(`<polygon points="${points.join(" ")}" 
+          fill="none" stroke="${color}" stroke-width="${strokeWidth.toFixed(1)}" 
+          opacity="${opacity.toFixed(2)}" filter="url(#rough)"/>`);
+        break;
+      }
+    }
+  }
+  
+  return parts.join("");
+}
+
+// Generate animal silhouettes for animals mode
+function generateAnimals(rng: RNG, W: number, H: number, count: number, anchors: Array<[number, number]>): string {
+  const parts: string[] = [];
+  const colors = [CRAYON_RED, CRAYON_BLUE, CRAYON_YELLOW, CRAYON_GREEN, CRAYON_ORANGE, CRAYON_PURPLE];
+  const animalNames = Object.keys(ANIMAL_PATHS);
+
+  for (let i = 0; i < count; i++) {
+    const animalType = rng.pick(animalNames);
+    const animal = ANIMAL_PATHS[animalType];
+    const color = rng.pick(colors);
+    const [ax, ay] = rng.pick(anchors);
+
+    // Slightly larger range now that animals read clearly
+    const scale = rng2(rng, W * 0.0014, W * 0.0024);
+    // Tighter rotation — animals stay recognizable, still feel hand-placed
+    const rot = rng2(rng, -20, 20);
+    const opacity = rng2(rng, 0.88, 1.0).toFixed(2);
+
+    // Stroke widths in path-units. They scale with the animal so proportions stay right.
+    parts.push(
+      `<g transform="translate(${ax} ${ay}) rotate(${rot}) scale(${scale})" opacity="${opacity}">
+        <path d="${animal.body}" fill="${color}" stroke="${INK}" stroke-width="1.5" stroke-linejoin="round"/>
+        <path d="${animal.dots}" fill="${INK}"/>
+        <path d="${animal.lines}" fill="none" stroke="${INK}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>`
+    );
+  }
+
+  return parts.join("");
 }

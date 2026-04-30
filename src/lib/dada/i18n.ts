@@ -33,7 +33,7 @@ export type Dict = {
 
 export const DICT: Record<LangCode, Dict> = {
   en: {
-    tagline: "MANIFESTO GENERATOR",
+    tagline: "DADA ART GENERATOR",
     prompt: "Give me your words.",
     lede: "A sentence. A whisper. A complaint. Six words or more. Chance will cut them up, paste them down, and sign the wreckage in your name.",
     placeholder: "Type anything. The thought is made in the mouth…",
@@ -51,7 +51,7 @@ export const DICT: Record<LangCode, Dict> = {
     dragHint: "Drag the scraps. Rearrange the accident. Then print.",
   },
   es: {
-    tagline: "GENERADOR DE MANIFIESTOS",
+    tagline: "DADA ART GENERATOR",
     prompt: "Dame tus palabras.",
     lede: "Una frase. Un susurro. Una queja. Seis palabras o más. El azar las cortará, las pegará y firmará el desastre en tu nombre.",
     placeholder: "Escribe lo que sea. El pensamiento se hace en la boca…",
@@ -69,7 +69,7 @@ export const DICT: Record<LangCode, Dict> = {
     dragHint: "Arrastra los recortes. Recompón el accidente. Luego imprime.",
   },
   it: {
-    tagline: "GENERATORE DI MANIFESTI",
+    tagline: "GENERATORE DI ARTE DADA",
     prompt: "Dammi le tue parole.",
     lede: "Una frase. Un mormorio. Una lamentela. Sei parole o più. Il caso le taglierà, le incollerà, firmerà il disastro al tuo posto.",
     placeholder: "Scrivi qualunque cosa. Il pensiero si fa in bocca…",
@@ -87,7 +87,7 @@ export const DICT: Record<LangCode, Dict> = {
     dragHint: "Trascina i ritagli. Ricomponi l'incidente. Poi stampa.",
   },
   pt: {
-    tagline: "GERADOR DE MANIFESTOS",
+    tagline: "GERADOR DE ARTE DADA",
     prompt: "Dê-me as suas palavras.",
     lede: "Uma frase. Um sussurro. Uma queixa. Seis palavras ou mais. O acaso as cortará, colará e assinará o destroço em teu nome.",
     placeholder: "Escreve qualquer coisa. O pensamento faz-se na boca…",
@@ -105,7 +105,7 @@ export const DICT: Record<LangCode, Dict> = {
     dragHint: "Arrasta os recortes. Reorganiza o acidente. Depois imprime.",
   },
   fr: {
-    tagline: "GÉNÉRATEUR DE MANIFESTES",
+    tagline: "GÉNÉRATEUR D'ART DADA",
     prompt: "Donne-moi tes mots.",
     lede: "Une phrase. Un murmure. Une plainte. Six mots minimum. Le hasard les coupera, les collera, signera la ruine en ton nom.",
     placeholder: "Écris n'importe quoi. La pensée se fait dans la bouche…",
@@ -123,7 +123,7 @@ export const DICT: Record<LangCode, Dict> = {
     dragHint: "Glisse les coupures. Recompose l'accident. Puis imprime.",
   },
   ar: {
-    tagline: "مولِّد البيانات",
+    tagline: "مولد فن الدادا",
     prompt: "أعطني كلماتك.",
     lede: "جملة. همسة. شكوى. ست كلمات أو أكثر. ستقصّها الصدفة، تلصقها، وتوقّع الخراب باسمك.",
     placeholder: "اكتب أي شيء. الفكرة تُصنع في الفم…",
@@ -141,7 +141,7 @@ export const DICT: Record<LangCode, Dict> = {
     dragHint: "اسحب القصاصات. أعِد ترتيب الحادث. ثم اطبع.",
   },
   zh: {
-    tagline: "宣言生成器",
+    tagline: "达达艺术生成器",
     prompt: "把你的字给我。",
     lede: "一句话。一声低语。一句抱怨。至少六个字。偶然会剪开、粘贴，并以你的名义在残骸上签字。",
     placeholder: "随便写。想法在口中诞生……",

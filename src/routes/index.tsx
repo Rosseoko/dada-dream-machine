@@ -42,12 +42,13 @@ function Index() {
   const [topZ, setTopZ] = useState(100);
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [animalsMode, setAnimalsMode] = useState(false);
 
   const posterRef = useRef<HTMLDivElement>(null);
 
   const seedKey = useMemo(() => {
-    return `${lang}|${input.trim().toLowerCase()}|${seedCode}`;
-  }, [lang, input, seedCode]);
+    return `${lang}|${input.trim().toLowerCase()}|${seedCode}|${animalsMode ? "animals" : "dada"}`;
+  }, [lang, input, seedCode, animalsMode]);
 
   const edition = useMemo(() => (seedKey ? editionFromSeed(seedKey) : 0), [seedKey]);
 
@@ -65,8 +66,9 @@ function Index() {
       manifestoLabel: t.manifesto,
       editionLabel: t.edition,
       seedLabel: t.seed,
+      animalsMode,
     });
-  }, [poem, seedKey, edition, seedCode, lang, t]);
+  }, [poem, seedKey, edition, seedCode, lang, t, animalsMode]);
 
   const svgDataUrl = useMemo(() => {
     if (!svg) return "";
@@ -158,6 +160,15 @@ function Index() {
 
           <div className="intro__body">
             <h2 className="intro__prompt">{t.prompt}</h2>
+            <label className="intro__animals-toggle">
+              <input
+                type="checkbox"
+                checked={animalsMode}
+                onChange={(e) => setAnimalsMode(e.target.checked)}
+                className="intro__animals-toggle-input"
+              />
+              <span className="intro__animals-toggle-label">🐾 Animals Mode</span>
+            </label>
             <p className="intro__lede">{t.lede}</p>
 
             <textarea
