@@ -352,7 +352,7 @@
   gap: 0.5rem;
 }
 
-/* ---- Result ---- */
+/* ---- Result / Poster ---- */
 .result {
   position: relative;
   z-index: 1;
@@ -369,16 +369,83 @@
   gap: 0.75rem;
 }
 .result__bar-actions { display: flex; gap: 0.75rem; }
+.result__hint {
+  font-family: "Special Elite", monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  margin: 0;
+  flex: 1 1 14rem;
+  text-align: center;
+  opacity: 0.75;
+  font-style: italic;
+}
 
-.result__canvas-wrap {
+.poster-wrap {
   max-width: 1200px;
   margin: 0 auto;
   box-shadow: 0 30px 60px -20px rgba(0,0,0,0.45), 0 10px 20px -10px rgba(0,0,0,0.3);
 }
 
-.result__canvas {
-  display: block;
-  width: 100% !important;
-  height: auto !important;
-  max-width: 1200px;
+.poster {
+  position: relative;
+  width: 100%;
+  background: var(--dada-paper);
+  overflow: hidden;
+  container-type: inline-size;
 }
+.poster__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+.poster__scraps {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.dada-scrap {
+  transition: filter 0.15s ease;
+}
+.dada-scrap:hover {
+  filter: brightness(1.04) drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+/* ---- Language switcher ---- */
+.lang-switch {
+  position: fixed;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 50;
+  display: flex;
+  gap: 2px;
+  background: var(--dada-ink);
+  padding: 3px;
+  border: 2px solid var(--dada-ink);
+  box-shadow: 3px 3px 0 0 var(--dada-red);
+}
+.lang-switch__btn {
+  font-family: "Anton", "Bebas Neue", sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  padding: 0.3rem 0.55rem;
+  background: var(--dada-paper);
+  color: var(--dada-ink);
+  border: none;
+  cursor: pointer;
+  min-width: 1.8rem;
+  line-height: 1;
+}
+.lang-switch__btn:hover { background: var(--dada-paper-deep); }
+.lang-switch__btn.is-active {
+  background: var(--dada-red);
+  color: var(--dada-paper);
+}
+
+[dir="rtl"] .lang-switch { right: auto; left: 0.75rem; }
+
