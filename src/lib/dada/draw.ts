@@ -16,6 +16,7 @@ export type BgOptions = {
   editionLabel: string;
   seedLabel: string;
   animalsMode?: boolean;
+  isLandscape?: boolean;
 };
 
 const PAPER = "#efe7d3";
@@ -174,7 +175,7 @@ function rint(rng: RNG, a: number, b: number) { return rng.rangeInt(a, b); }
 function rng2(rng: RNG, a: number, b: number) { return rng.range(a, b); }
 
 export function buildBackgroundSVG(opts: BgOptions): string {
-  const { width: W, height: H, seedKey } = opts;
+  const { width: W, height: H, seedKey, isLandscape } = opts;
   const rng = makeRNG("bg:" + seedKey);
   const parts: string[] = [];
 
@@ -223,7 +224,8 @@ export function buildBackgroundSVG(opts: BgOptions): string {
   }
 
   // Faux newspaper text columns (background texture)
-  const colCount = rint(rng,2,4);
+  // Landscape: fewer columns for less density
+  const colCount = isLandscape ? rint(rng, 1, 2) : rint(rng, 2, 4);
   for (let i = 0; i < colCount; i++) {
     const x = rng2(rng, W*0.05, W*0.85);
     const y = rng2(rng, H*0.55, H*0.85);
@@ -240,8 +242,9 @@ export function buildBackgroundSVG(opts: BgOptions): string {
   }
 
   // 2. Hidden grid → broken grid composition (anchor points)
-  const gridX = rint(rng, 4, 6);
-  const gridY = rint(rng, 5, 7);
+  // Landscape: fewer anchors for less density
+  const gridX = isLandscape ? rint(rng, 5, 7) : rint(rng, 4, 6);
+  const gridY = isLandscape ? rint(rng, 3, 4) : rint(rng, 5, 7);
   const cellW = W / gridX;
   const cellH = H / gridY;
   const anchors: Array<[number, number]> = [];
@@ -278,7 +281,8 @@ export function buildBackgroundSVG(opts: BgOptions): string {
   }
 
   // 4. Layered geometry — bars, circles, rings, triangles, arrows, halftone shapes
-  const geoCount = rint(rng, 9, 14);
+  // Landscape: fewer geometric elements for less density
+  const geoCount = isLandscape ? rint(rng, 5, 9) : rint(rng, 9, 14);
   for (let i = 0; i < geoCount; i++) {
     const kind = rng.pick(["bar","circle","ring","triangle","arrow","halfcircle","halftoneRect","warpCircle"] as const);
     const color = rng.maybe(0.45) ? RED : rng.maybe(0.6) ? INK : rng.pick([BLUE, OCHRE, INK]);
@@ -341,7 +345,9 @@ export function buildBackgroundSVG(opts: BgOptions): string {
   }
 
   // 5. Torn polygon shards
-  for (let i = 0; i < rint(rng,3,6); i++) {
+  // Landscape: fewer shards for less density
+  const shardCount = isLandscape ? rint(rng, 3, 5) : rint(rng, 4, 8);
+  for (let i = 0; i < shardCount; i++) {
     const [cx, cy] = nextAnchor();
     const r = rng2(rng, W*0.04, W*0.12);
     const pts: string[] = [];
@@ -353,10 +359,15 @@ export function buildBackgroundSVG(opts: BgOptions): string {
     }
     const col = rng.pick([PAPER_3, INK, RED, OCHRE]);
     parts.push(`<polygon points="${pts.join(" ")}" fill="${col}" opacity="${rng2(rng,0.5,0.85).toFixed(2)}"/>`);
+    for (let s = 0; s < rint(rng,4,9); s++) {
+      parts.push(`<circle cx="${cx + rng2(rng,-r*4,r*4)}" cy="${cy + rng2(rng,-r*4,r*4)}" r="${rng2(rng,0.5,2.5).toFixed(1)}" fill="${INK}" opacity="0.8"/>`);
+    }
   }
 
   // 6. Barcode fragments
-  for (let i = 0; i < rint(rng,1,3); i++) {
+  // Landscape: fewer barcodes for less density
+  const barcodeCount = isLandscape ? rint(rng, 0, 2) : rint(rng, 1, 3);
+  for (let i = 0; i < barcodeCount; i++) {
     const x = rng2(rng, W*0.05, W*0.8);
     const y = rng2(rng, H*0.1, H*0.92);
     const bw = rng2(rng, W*0.08, W*0.16);
@@ -375,7 +386,9 @@ export function buildBackgroundSVG(opts: BgOptions): string {
   }
 
   // 7. Ink splatters
-  for (let i = 0; i < rint(rng,3,6); i++) {
+  // Landscape: fewer splatters for less density
+  const splatterCount = isLandscape ? rint(rng, 1, 3) : rint(rng, 3, 6);
+  for (let i = 0; i < splatterCount; i++) {
     const cx = rng2(rng, W*0.05, W*0.95);
     const cy = rng2(rng, H*0.08, H*0.95);
     const r = rng2(rng, W*0.008, W*0.03);
@@ -393,7 +406,9 @@ export function buildBackgroundSVG(opts: BgOptions): string {
   }
 
   // 8. Scratches
-  for (let i = 0; i < rint(rng,4,9); i++) {
+  // Landscape: fewer scratches for less density
+  const scratchCount = isLandscape ? rint(rng, 2, 4) : rint(rng, 4, 7);
+  for (let i = 0; i < scratchCount; i++) {
     const x1 = rng2(rng,0,W), y1 = rng2(rng,0,H);
     const len = rng2(rng, W*0.05, W*0.25);
     const ang = rng2(rng,0,Math.PI*2);
@@ -401,7 +416,8 @@ export function buildBackgroundSVG(opts: BgOptions): string {
   }
 
   // 9. Procedural stamps — circular & rectangular & archive labels
-  const stampCount = rint(rng, 5, 8);
+  // Landscape: fewer stamps for less density
+  const stampCount = isLandscape ? rint(rng, 3, 5) : rint(rng, 5, 8);
   for (let i = 0; i < stampCount; i++) {
     const kind = rng.pick(["circle","rect","archive"] as const);
     const text = rng.pick(STAMP_BANK);
@@ -438,29 +454,40 @@ export function buildBackgroundSVG(opts: BgOptions): string {
   }
 
   // 9.5. Animals mode: Add animal silhouettes and scribbles
+  // Landscape: fewer animals and scribbles for less density
   if (opts.animalsMode) {
     // Add animal silhouettes
-    const animalCount = rint(rng, 6, 10);
+    const animalCount = isLandscape ? rint(rng, 3, 6) : rint(rng, 6, 10);
     parts.push(generateAnimals(rng, W, H, animalCount, anchors));
     
     // Add child-like scribbles
-    const scribbleCount = rint(rng, 8, 15);
+    const scribbleCount = isLandscape ? rint(rng, 4, 8) : rint(rng, 8, 15);
     parts.push(generateScribbles(rng, W, H, scribbleCount));
   }
 
   // 10. Top & bottom mastheads, seed + edition
+  // Landscape: wider coverage for newspaper spread feel
+  const mastheadWidth = isLandscape ? W*0.98 : W*0.9;
+  const mastheadX = isLandscape ? W*0.01 : W*0.05;
+  // Landscape: larger fonts for newspaper masthead feel
+  const dadaSize = isLandscape ? W*0.06 : W*0.04;
+  const metaSize = isLandscape ? W*0.018 : W*0.013;
+  const metaX = isLandscape ? W*0.14 : W*0.18;
   parts.push(`<g>
-    <rect x="${W*0.05}" y="${W*0.075}" width="${W*0.9}" height="3" fill="${INK}"/>
-    <rect x="${W*0.05}" y="${W*0.082}" width="${W*0.9}" height="1" fill="${INK}"/>
-    <text x="${W*0.05}" y="${W*0.06}" font-family="Anton, sans-serif" font-weight="900" font-size="${W*0.04}" fill="${INK}">DADA</text>
-    <text x="${W*0.18}" y="${W*0.06}" font-family="Courier Prime, monospace" font-size="${W*0.013}" fill="${INK}">${escapeXml(opts.editionLabel)} ${opts.edition.toString().padStart(4,"0")}  ·  ${escapeXml(opts.manifestoLabel)}  ·  ${escapeXml(opts.seedLabel)} ${escapeXml(opts.seedCode)}  ·  LANG ${opts.lang.toUpperCase()}</text>
+    <rect x="${mastheadX}" y="${W*0.09}" width="${mastheadWidth}" height="${isLandscape ? 4 : 3}" fill="${INK}"/>
+    <rect x="${mastheadX}" y="${W*0.098}" width="${mastheadWidth}" height="${isLandscape ? 2 : 1}" fill="${INK}"/>
+    <text x="${mastheadX}" y="${W*0.07}" font-family="Anton, sans-serif" font-weight="900" font-size="${dadaSize}" fill="${INK}">DADA</text>
+    <text x="${metaX}" y="${W*0.07}" font-family="Courier Prime, monospace" font-size="${metaSize}" fill="${INK}">${escapeXml(opts.editionLabel)} ${opts.edition.toString().padStart(4,"0")}  ·  ${escapeXml(opts.manifestoLabel)}  ·  ${escapeXml(opts.seedLabel)} ${escapeXml(opts.seedCode)}  ·  LANG ${opts.lang.toUpperCase()}</text>
   </g>`);
 
   // Footer rule and serial
+  // Landscape: larger footer text
+  const footerSize = isLandscape ? W*0.016 : W*0.012;
+  const seedCodeSize = isLandscape ? W*0.024 : W*0.018;
   parts.push(`<g>
-    <rect x="${W*0.05}" y="${H - W*0.05}" width="${W*0.9}" height="1" fill="${INK}"/>
-    <text x="${W*0.05}" y="${H - W*0.025}" font-family="Courier Prime, monospace" font-size="${W*0.012}" fill="${INK}">SÉR. ${rint(rng,1000,9999)}-${String.fromCharCode(65+rint(rng,0,25))}${String.fromCharCode(65+rint(rng,0,25))}  ·  IMPRIMÉ PAR LE HASARD</text>
-    <text x="${W*0.95}" y="${H - W*0.025}" text-anchor="end" font-family="Anton, sans-serif" font-weight="900" font-size="${W*0.018}" fill="${RED}">${escapeXml(opts.seedCode)}</text>
+    <rect x="${mastheadX}" y="${H - W*0.06}" width="${mastheadWidth}" height="${isLandscape ? 2 : 1}" fill="${INK}"/>
+    <text x="${mastheadX}" y="${H - W*0.03}" font-family="Courier Prime, monospace" font-size="${footerSize}" fill="${INK}">SÉR. ${rint(rng,1000,9999)}-${String.fromCharCode(65+rint(rng,0,25))}${String.fromCharCode(65+rint(rng,0,25))}  ·  IMPRIMÉ PAR LE HASARD</text>
+    <text x="${isLandscape ? W*0.99 : W*0.95}" y="${H - W*0.03}" text-anchor="end" font-family="Anton, sans-serif" font-weight="900" font-size="${seedCodeSize}" fill="${RED}">${escapeXml(opts.seedCode)}</text>
   </g>`);
 
   // 11. Vignette / aged edges

@@ -43,20 +43,25 @@ function Index() {
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [animalsMode, setAnimalsMode] = useState(false);
+  const [isLandscape, setIsLandscape] = useState(false);
 
   const posterRef = useRef<HTMLDivElement>(null);
 
+  // Dynamic dimensions based on orientation
+  const canvasW = isLandscape ? POSTER_H : POSTER_W;
+  const canvasH = isLandscape ? POSTER_W : POSTER_H;
+
   const seedKey = useMemo(() => {
-    return `${lang}|${input.trim().toLowerCase()}|${seedCode}|${animalsMode ? "animals" : "dada"}`;
-  }, [lang, input, seedCode, animalsMode]);
+    return `${lang}|${input.trim().toLowerCase()}|${seedCode}|${animalsMode ? "animals" : "dada"}|${isLandscape ? "landscape" : "portrait"}`;
+  }, [lang, input, seedCode, animalsMode, isLandscape]);
 
   const edition = useMemo(() => (seedKey ? editionFromSeed(seedKey) : 0), [seedKey]);
 
   const svg = useMemo(() => {
     if (!poem) return "";
     return buildBackgroundSVG({
-      width: POSTER_W,
-      height: POSTER_H,
+      width: canvasW,
+      height: canvasH,
       seedKey,
       headlineWord: poem.headlineWord,
       edition,
@@ -67,6 +72,7 @@ function Index() {
       editionLabel: t.edition,
       seedLabel: t.seed,
       animalsMode,
+      isLandscape,
     });
   }, [poem, seedKey, edition, seedCode, lang, t, animalsMode]);
 
@@ -83,7 +89,7 @@ function Index() {
       const p = generatePoem(input, key);
       setSeedCode(sc);
       setPoem(p);
-      setScraps(layoutScraps(p.allWords, POSTER_W, POSTER_H, key));
+      setScraps(layoutScraps(p.allWords, canvasW, canvasH, key, isLandscape));
       setZMap({});
       setTopZ(100);
     } catch (e) {
@@ -206,6 +212,13 @@ function Index() {
             </button>
             <p className="result__hint">{t.dragHint}</p>
             <div className="result__bar-actions">
+              <button 
+                className="btn btn--ghost" 
+                onClick={() => setIsLandscape(!isLandscape)}
+                title={isLandscape ? "Switch to Portrait" : "Switch to Landscape"}
+              >
+                {isLandscape ? "↕ Portrait" : "↔ Landscape"}
+              </button>
               <button className="btn btn--ghost" onClick={handleAgain}>
                 {t.again}
               </button>
@@ -219,7 +232,7 @@ function Index() {
             <div
               ref={posterRef}
               className="poster"
-              style={{ aspectRatio: `${POSTER_W} / ${POSTER_H}` }}
+              style={{ aspectRatio: `${canvasW} / ${canvasH}` }}
             >
               {svgDataUrl && (
                 <img
@@ -229,13 +242,16 @@ function Index() {
                   draggable={false}
                 />
               )}
-              <div className="poster__scraps" data-scrap-layer>
+              <div 
+                className="poster__scraps" 
+                data-scrap-layer
+              >
                 {scraps.map((s) => (
                   <ScrapView
                     key={s.id}
                     scrap={s}
-                    posterW={POSTER_W}
-                    posterH={POSTER_H}
+                    posterW={canvasW}
+                    posterH={canvasH}
                     containerRef={posterRef}
                     onChange={updateScrap}
                     onFocus={focusScrap}

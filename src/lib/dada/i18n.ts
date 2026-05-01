@@ -36,7 +36,7 @@ export const DICT: Record<LangCode, Dict> = {
   en: {
     tagline: "DADA ART GENERATOR",
     prompt: "Give me your words.",
-    lede: "A sentence. A whisper. A complaint. Six words or more. Chance will cut them up, paste them down, and sign the wreckage in your name.",
+    lede: "A song. A sentence. A whisper. A complaint. Six words or more. Chance will cut them up, paste them down, and sign the wreckage in your name.",
     placeholder: "Type anything. The thought is made in the mouth…",
     generate: "Cut It Up",
     generateSub: "PRINT THE ACCIDENT",
@@ -55,7 +55,7 @@ export const DICT: Record<LangCode, Dict> = {
   es: {
     tagline: "DADA ART GENERATOR",
     prompt: "Dame tus palabras.",
-    lede: "Una frase. Un susurro. Una queja. Seis palabras o más. El azar las cortará, las pegará y firmará el desastre en tu nombre.",
+    lede: "Una canción. Una frase. Un susurro. Una queja. Seis palabras o más. El azar las cortará, las pegará y firmará el desastre en tu nombre.",
     placeholder: "Escribe lo que sea. El pensamiento se hace en la boca…",
     generate: "Recórtalo",
     generateSub: "IMPRIME EL ACCIDENTE",
@@ -74,7 +74,7 @@ export const DICT: Record<LangCode, Dict> = {
   it: {
     tagline: "GENERATORE DI ARTE DADA",
     prompt: "Dammi le tue parole.",
-    lede: "Una frase. Un mormorio. Una lamentela. Sei parole o più. Il caso le taglierà, le incollerà, firmerà il disastro al tuo posto.",
+    lede: "Una canzone. Una frase. Un mormorio. Una lamentela. Sei parole o più. Il caso le taglierà, le incollerà, firmerà il disastro al tuo posto.",
     placeholder: "Scrivi qualunque cosa. Il pensiero si fa in bocca…",
     generate: "Taglialo",
     generateSub: "STAMPA L'INCIDENTE",
@@ -93,7 +93,7 @@ export const DICT: Record<LangCode, Dict> = {
   pt: {
     tagline: "GERADOR DE ARTE DADA",
     prompt: "Dê-me as suas palavras.",
-    lede: "Uma frase. Um sussurro. Uma queixa. Seis palavras ou mais. O acaso as cortará, colará e assinará o destroço em teu nome.",
+    lede: "Uma canção. Uma frase. Um sussurro. Uma queixa. Seis palavras ou mais. O acaso as cortará, colará e assinará o destroço em teu nome.",
     placeholder: "Escreve qualquer coisa. O pensamento faz-se na boca…",
     generate: "Recorta",
     generateSub: "IMPRIME O ACIDENTE",
@@ -112,7 +112,7 @@ export const DICT: Record<LangCode, Dict> = {
   fr: {
     tagline: "GÉNÉRATEUR D'ART DADA",
     prompt: "Donne-moi tes mots.",
-    lede: "Une phrase. Un murmure. Une plainte. Six mots minimum. Le hasard les coupera, les collera, signera la ruine en ton nom.",
+    lede: "Une chanson. Une phrase. Un murmure. Une plainte. Six mots minimum. Le hasard les coupera, les collera, signera la ruine en ton nom.",
     placeholder: "Écris n'importe quoi. La pensée se fait dans la bouche…",
     generate: "Découpe-le",
     generateSub: "IMPRIME L'ACCIDENT",
@@ -131,7 +131,7 @@ export const DICT: Record<LangCode, Dict> = {
   ar: {
     tagline: "مولد فن الدادا",
     prompt: "أعطني كلماتك.",
-    lede: "جملة. همسة. شكوى. ست كلمات أو أكثر. ستقصّها الصدفة، تلصقها، وتوقّع الخراب باسمك.",
+    lede: "أغنية. جملة. همسة. شكوى. ست كلمات أو أكثر. ستقصّها الصدفة، تلصقها، وتوقّع الخراب باسمك.",
     placeholder: "اكتب أي شيء. الفكرة تُصنع في الفم…",
     generate: "قُصّها",
     generateSub: "اطبع الحادث",
@@ -150,7 +150,7 @@ export const DICT: Record<LangCode, Dict> = {
   zh: {
     tagline: "达达艺术生成器",
     prompt: "把你的字给我。",
-    lede: "一句话。一声低语。一句抱怨。至少六个字。偶然会剪开、粘贴，并以你的名义在残骸上签字。",
+    lede: "一首歌。一句话。一声低语。一句抱怨。至少六个字。偶然会剪开、粘贴，并以你的名义在残骸上签字。",
     placeholder: "随便写。想法在口中诞生……",
     generate: "剪开它",
     generateSub: "打印这场意外",

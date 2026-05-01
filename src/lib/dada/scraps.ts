@@ -74,9 +74,15 @@ export function layoutScraps(
   W: number,
   H: number,
   seedKey: string,
+  isLandscape?: boolean,
 ): Scrap[] {
   const rng = makeRNG("scraps:" + seedKey);
   const scraps: Scrap[] = [];
+  
+  // Landscape: reduce number of words for less density
+  const tokensToUse = isLandscape 
+    ? tokens.slice(0, Math.floor(tokens.length * 0.6)) // 60% of words in landscape
+    : tokens;
 
   // Define a "safe" zone: avoid the headline area roughly H*0.13..H*0.4
   const isInHeadline = (x: number, y: number) => y > H*0.13 && y < H*0.42 && x > W*0.05 && x < W*0.95;
@@ -84,8 +90,8 @@ export function layoutScraps(
   // Try to spread scraps across both the upper-margin area and lower 2/3.
   const placed: Array<{x: number; y: number; w: number; h: number}> = [];
 
-  for (let i = 0; i < tokens.length; i++) {
-    const tok = tokens[i];
+  for (let i = 0; i < tokensToUse.length; i++) {
+    const tok = tokensToUse[i];
     const font = rng.pick(FONT_SET);
     const baseSize = rng.range(W*0.018, W*0.045);
     // Make occasional emphatic words bigger
